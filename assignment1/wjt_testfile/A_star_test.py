@@ -90,10 +90,11 @@ def check_exit(point: list, block_list: list, close_list: list, rows: int, colum
 
 
 def search(open_stack: Stack, block_list: list, close_list: list, rows: int, columns: int):
-    # TODO: add situation that there is no path in the maze
     # create new stack to store all the new point
     new_stack = Stack()
     len_stack = open_stack.size()
+    if len_stack==0:
+        return True, None
     # iterate through the stack to find the new point
     for _ in range(len_stack):
         pre_node = open_stack.pop()
