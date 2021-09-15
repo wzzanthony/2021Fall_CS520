@@ -1,37 +1,3 @@
-import math
-
-
-class Node():
-
-    def __init__(self, position, father, end_point: list):
-        self.position = position
-        self.father_node = father
-        self.fn = math.sqrt(math.pow(position[0] - end_point[0], 2) + math.pow(position[1] - end_point[1], 2))
-        if father is None:
-            self.gn = 0
-        else:
-            self.gn = father.get_gn() + 1
-        self.distance = self.fn + self.gn
-
-    def set_father_node(self, node_name):
-        self.father_node = node_name
-
-    def get_items(self):
-        return self.position
-
-    def get_father_node(self):
-        return self.father_node
-
-    def get_fn(self):
-        return self.fn
-
-    def get_gn(self):
-        return self.gn
-
-    def get_total_d(self):
-        return self.distance
-
-
 class Stack():
     """
     implement a stack in Python
@@ -57,24 +23,12 @@ class Stack():
         """
         return self.items.pop()
 
-    def push(self, data: Node):
+    def push(self, data):
         """
         push the data into the stack
         :param data: the data to be pushed
         """
-        if len(self.items) != 0:
-            if data.get_total_d() > self.items[0].get_total_d():
-                self.items.insert(0, data)
-            elif data.get_total_d() < self.items[-1].get_total_d():
-                self.items.append(data)
-            else:
-                # TODO this method compare data from the first in the list, change to the last one will be better
-                for index in range(len(self.items) - 1):
-                    if self.items[index].get_total_d() >= data.get_total_d() >= self.items[index + 1].get_total_d():
-                        self.items.insert(index + 1, data)
-                        break
-        else:
-            self.items.append(data)
+        self.items.append(data)
 
     def size(self):
         """
@@ -82,6 +36,27 @@ class Stack():
         :return: the size of the stack
         """
         return len(self.items)
+
+
+class Node():
+    """
+    create Node structure to generate tree
+    """
+    def __init__(self, position):
+        self.position = position
+        self.father_node = None
+
+    def set_father_node(self, node_name):
+        # ser father node of each point
+        self.father_node = node_name
+
+    def get_items(self):
+        # get position information of the node
+        return self.position
+
+    def get_father_node(self):
+        # change current node to father node
+        return self.father_node
 
 
 def get_block(maze_info: list, rows: int, columns: int):
@@ -93,6 +68,7 @@ def get_block(maze_info: list, rows: int, columns: int):
     :return: block list of the maze
     """
     block_list = []
+    # scan all the block points in the maze
     for row in range(rows):
         for col in range(columns):
             if maze_info[row][col] == 1:
@@ -136,9 +112,9 @@ def search(open_stack: Stack, block_list: list, close_list: list, rows: int, col
     :param columns: total columns of the maze
     """
     # create new stack to store all the new point
-    # new_stack = Stack()
+    new_stack = Stack()
     len_stack = open_stack.size()
-    if len_stack == 0:
+    if len_stack==0:
         return True, None
     # iterate through the stack to find the new point
     for _ in range(len_stack):
@@ -152,14 +128,16 @@ def search(open_stack: Stack, block_list: list, close_list: list, rows: int, col
         for each_point_around in point_around_list:
             # if find the end point, return all the tree
             if [rows - 1, columns - 1] == each_point_around:
-                end_node = Node(position=[rows - 1, columns - 1], father=pre_node, end_point=[rows - 1, columns - 1])
+                end_node = Node(position=[rows - 1, columns - 1])
+                end_node.set_father_node(pre_node)
                 return True, end_node
             # if not find the end point, add the current point to the tree, then return next stack
             else:
-                new_node = Node(each_point_around, father=pre_node, end_point=[rows - 1, columns - 1])
-                open_stack.push(new_node)
+                new_node = Node(each_point_around)
+                new_node.set_father_node(pre_node)
+                new_stack.push(new_node)
                 close_list.append(each_point_around)
-    return False, open_stack
+    return False, new_stack
 
 
 def find_path(current_node: Node):
@@ -197,7 +175,7 @@ def A_star_search(maze: list, rows: int, columns: int):
                            rows=rows,
                            columns=columns)
     # create start fringe of the tree
-    start_node = Node(position=[0, 0], father=None, end_point=[rows-1, columns-1])
+    start_node = Node([0, 0])
     open_stack = Stack()
     open_stack.push(start_node)
     # create the close list, put the start point into the list
@@ -218,3 +196,14 @@ def A_star_search(maze: list, rows: int, columns: int):
         # if there is a way out, return that way
         path_list = find_path(current_node=open_stack)
         return path_list
+
+
+
+
+
+
+
+
+
+
+
