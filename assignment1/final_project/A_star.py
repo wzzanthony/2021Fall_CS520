@@ -3,10 +3,20 @@ import math
 
 class Node():
 
-    def __init__(self, position, father, end_point: list):
+    def __init__(self, position:list, father, end_point: list, model="E"):
         self.position = position
         self.father_node = father
-        self.fn = math.sqrt(math.pow(position[0] - end_point[0], 2) + math.pow(position[1] - end_point[1], 2))
+        if model == "E":
+            # Use Euclidean Distance
+            self.fn = math.sqrt(math.pow(position[0] - end_point[0], 2) + math.pow(position[1] - end_point[1], 2))
+        elif model == "M":
+            # Use Manhattan Distance
+            self.fn = abs(position[0] - end_point[0])+abs(position[1] - end_point[1])
+        elif model == "C":
+            # Use Chebyshev Distance
+            self.fn = max(abs(position[0] - end_point[0]), abs(position[1] - end_point[1]))
+        else:
+            self.fn = math.sqrt(math.pow(position[0] - end_point[0], 2) + math.pow(position[1] - end_point[1], 2))
         if father is None:
             self.gn = 0
         else:
@@ -68,7 +78,7 @@ class Stack():
             elif data.get_total_d() < self.items[-1].get_total_d():
                 self.items.append(data)
             else:
-                # TODO this method compare data from the first in the list, change to the last one will be better
+                # TODO this method compare data from the first one in the list, change to the last one will be better
                 for index in range(len(self.items) - 1):
                     if self.items[index].get_total_d() >= data.get_total_d() >= self.items[index + 1].get_total_d():
                         self.items.insert(index + 1, data)
@@ -126,7 +136,7 @@ def check_exit(point: list, block_list: list, close_list: list, rows: int, colum
     return return_point_list
 
 
-def search(open_stack: Stack, block_list: list, close_list: list, rows: int, columns: int):
+def search(open_stack: Stack, block_list: list, close_list: list, rows: int, columns: int, model):
     """
     search path in the maze
     :param open_stack: point that should be test in the next iteration
@@ -136,7 +146,6 @@ def search(open_stack: Stack, block_list: list, close_list: list, rows: int, col
     :param columns: total columns of the maze
     """
     # create new stack to store all the new point
-    # new_stack = Stack()
     len_stack = open_stack.size()
     if len_stack == 0:
         return True, None
@@ -152,11 +161,17 @@ def search(open_stack: Stack, block_list: list, close_list: list, rows: int, col
         for each_point_around in point_around_list:
             # if find the end point, return all the tree
             if [rows - 1, columns - 1] == each_point_around:
-                end_node = Node(position=[rows - 1, columns - 1], father=pre_node, end_point=[rows - 1, columns - 1])
+                end_node = Node(position=[rows - 1, columns - 1],
+                                father=pre_node,
+                                end_point=[rows - 1, columns - 1],
+                                model=model)
                 return True, end_node
             # if not find the end point, add the current point to the tree, then return next stack
             else:
-                new_node = Node(each_point_around, father=pre_node, end_point=[rows - 1, columns - 1])
+                new_node = Node(each_point_around,
+                                father=pre_node,
+                                end_point=[rows - 1, columns - 1],
+                                model=model)
                 open_stack.push(new_node)
                 close_list.append(each_point_around)
     return False, open_stack
@@ -185,24 +200,30 @@ def find_path(current_node: Node):
     return path_list
 
 
-def A_star_search(maze: list, rows: int, columns: int):
+def A_star_search(maze: list, rows: int, columns: int, model="E"):
     """
     A star algorithm
     :param maze: the information of the maze
     :param rows: the total rows of the maze
     :param columns: the total columns of the maze
+    :param model: the model used to calculate distance
+    :               "E" stand for "Euclidean Distance"
+    :               "M" stand for "Manhattan Distance"
+    :               "C" stand for "Chebyshev Distance"
     """
     # get block info
     block_list = get_block(maze_info=maze,
                            rows=rows,
                            columns=columns)
     # create start fringe of the tree
-    start_node = Node(position=[0, 0], father=None, end_point=[rows-1, columns-1])
+    start_node = Node(position=[0, 0],
+                      father=None,
+                      end_point=[rows-1, columns-1],
+                      model=model)
     open_stack = Stack()
     open_stack.push(start_node)
     # create the close list, put the start point into the list
-    close_list = []
-    close_list.append([0, 0])
+    close_list = [[0, 0]]
     status = False
     # start finding
     while not status:
@@ -210,9 +231,11 @@ def A_star_search(maze: list, rows: int, columns: int):
                                     block_list=block_list,
                                     close_list=close_list,
                                     rows=rows,
-                                    columns=columns)
-    # if there  is no way out, return empty list
-    if open_stack == None:
+                                    columns=columns,
+                                    model=model)
+
+    if open_stack is None:
+        # if there  is no way out, return empty list
         return []
     else:
         # if there is a way out, return that way
