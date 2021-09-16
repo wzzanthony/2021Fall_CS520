@@ -6,7 +6,7 @@
 |maze|the information of the maze|list|/|
 |rows|count of the rows|int|/|
 |columns|count of the columns|int|/|
-|model|model to calculate distance|string|"E":"Euclidean Distance"<br/>"M":"Manhattan Distance"<br/>"C":"Chebyshev Distance"|
+|model|model to calculate distance|string|"E":"Euclidean Distance" (default)<br/>"M":"Manhattan Distance"<br/>"C":"Chebyshev Distance"|
 
 ### using example
 
