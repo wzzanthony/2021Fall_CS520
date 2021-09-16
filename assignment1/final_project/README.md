@@ -1,11 +1,12 @@
 ## usage of the A star algorithm interface
 
 ### parameter
-|name|info|type|
-|:----|:----|:----|
-|maze|the information of the maze|list|
-|rows|count of the rows|int|
-|columns|count of the columns|int|
+|name|info|type|options|
+|:----|:----|:----|:---|
+|maze|the information of the maze|list|/|
+|rows|count of the rows|int|/|
+|columns|count of the columns|int|/|
+|model|model to calculate distance|string|"E":"Euclidean Distance"<br/>"M":"Manhattan Distance"<br/>"C":"Chebyshev Distance"|
 
 ### using example
 
@@ -25,7 +26,7 @@ if __name__ == '__main__':
           [0,0,1,0,0,0,0,0,0,0],
           [0,0,0,0,0,0,0,0,0,0],
           [0,0,0,0,0,0,0,0,0,0]]
-    result=A_star_search(maze,10,10)
+    result=A_star_search(maze,10,10, model="C")
     print(result)
 
 ```
