@@ -42,6 +42,7 @@ class Node:
     def get_fn(self):
         return self.fn
 
+    # add for priority queue
     def __gt__(self, other):
         return self.fn > other.get_fn()
 
