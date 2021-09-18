@@ -8,20 +8,20 @@ class Node():
         self.father_node = father
         if model == "E":
             # Use Euclidean Distance
-            self.fn = math.sqrt(math.pow(position[0] - end_point[0], 2) + math.pow(position[1] - end_point[1], 2))
+            self.hn = math.sqrt(math.pow(position[0] - end_point[0], 2) + math.pow(position[1] - end_point[1], 2))
         elif model == "M":
             # Use Manhattan Distance
-            self.fn = abs(position[0] - end_point[0])+abs(position[1] - end_point[1])
+            self.hn = abs(position[0] - end_point[0]) + abs(position[1] - end_point[1])
         elif model == "C":
             # Use Chebyshev Distance
-            self.fn = max(abs(position[0] - end_point[0]), abs(position[1] - end_point[1]))
+            self.hn = max(abs(position[0] - end_point[0]), abs(position[1] - end_point[1]))
         else:
-            self.fn = math.sqrt(math.pow(position[0] - end_point[0], 2) + math.pow(position[1] - end_point[1], 2))
+            self.hn = math.sqrt(math.pow(position[0] - end_point[0], 2) + math.pow(position[1] - end_point[1], 2))
         if father is None:
             self.gn = 0
         else:
             self.gn = father.get_gn() + 1
-        self.distance = self.fn + self.gn
+        self.fn = self.hn + self.gn
 
     def set_father_node(self, node_name):
         self.father_node = node_name
@@ -32,14 +32,14 @@ class Node():
     def get_father_node(self):
         return self.father_node
 
-    def get_fn(self):
-        return self.fn
+    def get_hn(self):
+        return self.hn
 
     def get_gn(self):
         return self.gn
 
-    def get_total_d(self):
-        return self.distance
+    def get_fn(self):
+        return self.fn
 
 
 class Stack():
@@ -73,14 +73,14 @@ class Stack():
         :param data: the data to be pushed
         """
         if len(self.items) != 0:
-            if data.get_total_d() >= self.items[0].get_total_d():
+            if data.get_fn() >= self.items[0].get_fn():
                 self.items.insert(0, data)
-            elif data.get_total_d() <= self.items[-1].get_total_d():
+            elif data.get_fn() <= self.items[-1].get_fn():
                 self.items.append(data)
             else:
                 # TODO this method compare data from the first one in the list, change to the last one will be better
                 for index in range(len(self.items) - 1):
-                    if self.items[index].get_total_d() >= data.get_total_d() >= self.items[index + 1].get_total_d():
+                    if self.items[index].get_fn() >= data.get_fn() >= self.items[index + 1].get_fn():
                         self.items.insert(index + 1, data)
                         break
         else:
@@ -241,3 +241,18 @@ def A_star_search(maze: list, rows: int, columns: int, model="E"):
         # if there is a way out, return that way
         path_list = find_path(current_node=open_stack)
         return path_list
+
+
+if __name__ == '__main__':
+    maze = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+            [0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
+            [1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0, 0, 1, 1, 1, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    result = A_star_search(maze, 10, 10, model="E")
+    print(result)
