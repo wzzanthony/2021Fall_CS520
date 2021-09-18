@@ -48,7 +48,7 @@ class Cell():
 
 class Map():
 
-    obstacle_num = 500  # obstacles number
+    obstacle_num = 5000  # obstacles number
 
     def __init__(self,Width,Height):
         self.width = Width
@@ -121,7 +121,7 @@ start_cell = Cell(position=[0, 0],goal_cell=[101, 101])
 goal_cell = Cell(position=[101, 101],goal_cell=[101, 101])
 maze = Map(101, 101)
 
-maze.maze_obstacles_show(10,10)
+maze.maze_obstacles_show(101,101)
 maze.draw_start(start_cell)
 maze.draw_goal(goal_cell)
 print('-'*150)
