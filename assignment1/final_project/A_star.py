@@ -1,9 +1,10 @@
 import math
+import queue
 
 
-class Node():
+class Node:
 
-    def __init__(self, position:list, father, end_point: list, model="E"):
+    def __init__(self, position: list, father, end_point: list, model="E"):
         self.position = position
         self.father_node = father
         if model == "E":
@@ -41,57 +42,14 @@ class Node():
     def get_fn(self):
         return self.fn
 
+    def __gt__(self, other):
+        return self.fn > other.get_fn()
 
-class Stack():
-    """
-    implement a stack in Python
-    """
+    def __eq__(self, other):
+        return self.fn == other.get_fn()
 
-    def __init__(self):
-        self.items = []
-
-    def is_empty(self):
-        """
-        test if the stack is empty.
-        :return: True or False
-        """
-        if len(self.items) == 0:
-            return True
-        else:
-            return False
-
-    def pop(self):
-        """
-        pop the first data in stack
-        :return: the first data in the stack
-        """
-        return self.items.pop()
-
-    def push(self, data: Node):
-        """
-        push the data into the stack
-        :param data: the data to be pushed
-        """
-        if len(self.items) != 0:
-            if data.get_fn() >= self.items[0].get_fn():
-                self.items.insert(0, data)
-            elif data.get_fn() <= self.items[-1].get_fn():
-                self.items.append(data)
-            else:
-                # TODO this method compare data from the first one in the list, change to the last one will be better
-                for index in range(len(self.items) - 1):
-                    if self.items[index].get_fn() >= data.get_fn() >= self.items[index + 1].get_fn():
-                        self.items.insert(index + 1, data)
-                        break
-        else:
-            self.items.append(data)
-
-    def size(self):
-        """
-        find out the size of the stack
-        :return: the size of the stack
-        """
-        return len(self.items)
+    def __lt__(self, other):
+        return self.fn < other.get_fn()
 
 
 def get_block(maze_info: list, rows: int, columns: int):
@@ -136,7 +94,7 @@ def check_exit(point: list, block_list: list, close_list: list, rows: int, colum
     return return_point_list
 
 
-def search(open_stack: Stack, block_list: list, close_list: list, rows: int, columns: int, model):
+def search(open_stack, block_list: list, close_list: list, rows: int, columns: int, model):
     """
     search path in the maze
     :param open_stack: point that should be test in the next iteration
@@ -144,36 +102,35 @@ def search(open_stack: Stack, block_list: list, close_list: list, rows: int, col
     :param close_list: point that already used
     :param rows: total rows of the maze
     :param columns: total columns of the maze
+    :param model: use distance model
     """
     # create new stack to store all the new point
-    len_stack = open_stack.size()
-    if len_stack == 0:
+    if open_stack.empty():
         return True, None
-    # iterate through the stack to find the new point
-    for _ in range(len_stack):
-        pre_node = open_stack.pop()
-        # find the available point
-        point_around_list = check_exit(point=pre_node.get_items(),
-                                       block_list=block_list,
-                                       close_list=close_list,
-                                       rows=rows,
-                                       columns=columns)
-        for each_point_around in point_around_list:
-            # if find the end point, return all the tree
-            if [rows - 1, columns - 1] == each_point_around:
-                end_node = Node(position=[rows - 1, columns - 1],
-                                father=pre_node,
-                                end_point=[rows - 1, columns - 1],
-                                model=model)
-                return True, end_node
-            # if not find the end point, add the current point to the tree, then return next stack
-            else:
-                new_node = Node(each_point_around,
-                                father=pre_node,
-                                end_point=[rows - 1, columns - 1],
-                                model=model)
-                open_stack.push(new_node)
-                close_list.append(each_point_around)
+    # find the new point
+    pre_node = open_stack.get()
+    # find the available point
+    point_around_list = check_exit(point=pre_node.get_items(),
+                                   block_list=block_list,
+                                   close_list=close_list,
+                                   rows=rows,
+                                   columns=columns)
+    for each_point_around in point_around_list:
+        # if find the end point, return all the tree
+        if [rows - 1, columns - 1] == each_point_around:
+            end_node = Node(position=[rows - 1, columns - 1],
+                            father=pre_node,
+                            end_point=[rows - 1, columns - 1],
+                            model=model)
+            return True, end_node
+        # if not find the end point, add the current point to the tree, then return next stack
+        else:
+            new_node = Node(each_point_around,
+                            father=pre_node,
+                            end_point=[rows - 1, columns - 1],
+                            model=model)
+            open_stack.put(new_node)
+            close_list.append(each_point_around)
     return False, open_stack
 
 
@@ -218,10 +175,12 @@ def A_star_search(maze: list, rows: int, columns: int, model="E"):
     # create start fringe of the tree
     start_node = Node(position=[0, 0],
                       father=None,
-                      end_point=[rows-1, columns-1],
+                      end_point=[rows - 1, columns - 1],
                       model=model)
-    open_stack = Stack()
-    open_stack.push(start_node)
+    # use priorityQueue
+    open_stack = queue.PriorityQueue()
+    open_stack.put(start_node)
+
     # create the close list, put the start point into the list
     close_list = [[0, 0]]
     status = False
@@ -241,18 +200,3 @@ def A_star_search(maze: list, rows: int, columns: int, model="E"):
         # if there is a way out, return that way
         path_list = find_path(current_node=open_stack)
         return path_list
-
-
-if __name__ == '__main__':
-    maze = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-            [0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
-            [0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
-            [1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 1, 1, 0],
-            [0, 0, 0, 1, 0, 0, 1, 1, 1, 0],
-            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-    result = A_star_search(maze, 10, 10, model="E")
-    print(result)
