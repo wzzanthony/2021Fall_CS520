@@ -2,12 +2,13 @@ import math
 import queue
 import random
 import time
+import tkinter
 
 
 class Cell:
 
     def __init__(self, position: tuple, goal_position: tuple, father_node=None):  # position = [x, y]
-        self.position = [0, 0]
+        self.position = position
         self.father_node = father_node
 
         # Heuristic cost from n to Goal_cell: hn
@@ -214,6 +215,68 @@ class Astar():
         return path_list[::-1]
 
 
+def display(maze: Maze, path: list, start_cell: Cell, goal_cell: Cell):
+    """Display the maze and solution"""
+    CELL_SIZE = 10
+    print(maze.width, maze.height)
+    root = tkinter.Tk()
+    root.title('Maze')
+    cv = tkinter.Canvas(root, bg='white', width=maze.width * CELL_SIZE, height=maze.height * CELL_SIZE)
+    # draw the path
+    for cell in path:
+        i, j = cell.get_position()
+        i, j = j, i
+        cv.create_rectangle(
+            i * CELL_SIZE, j * CELL_SIZE,
+            (i + 1) * CELL_SIZE, (j + 1) * CELL_SIZE,
+            fill='gray'
+        )
+    # draw map
+    for i in range(maze.height):
+        for j in range(maze.width):
+            # it's obstacle
+            if maze.data[i][j] == '#':
+                ni, nj = j, i
+                cv.create_rectangle(
+                    ni * CELL_SIZE, nj * CELL_SIZE,
+                    (ni + 1) * CELL_SIZE, (nj + 1) * CELL_SIZE,
+                    fill='black'
+                )
+            cv.create_rectangle(0, i * CELL_SIZE, maze.width * CELL_SIZE, i * CELL_SIZE)
+            cv.create_rectangle(j * CELL_SIZE, 0, j * CELL_SIZE, maze.height * CELL_SIZE)
+    # draw start and goal
+    i, j = start_cell.get_position()
+    i, j = j, i
+    cv.create_text((i * CELL_SIZE + CELL_SIZE // 2, j * CELL_SIZE + CELL_SIZE // 2), text="S")
+    i, j = goal_cell.get_position()
+    i, j = j, i
+    cv.create_text((i * CELL_SIZE + CELL_SIZE // 2, j * CELL_SIZE + CELL_SIZE // 2), text="G")
+    cv.pack()
+    root.mainloop()
+
+
+def demo():
+    """A demo usage"""
+    maze = Maze(10, 10)
+    maze.data = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    maze.obstacle(1, 7)
+    maze.show_maze()
+    goal_cell = Cell((9, 9), (9, 9))
+    start_cell = Cell((0, 0), (9, 9))
+    astar = Astar(start_cell=start_cell,goal_cell=goal_cell,maze=maze)
+    path = astar.run_Astar()
+    print('Path:',[str(e) for e in path])
+    display(maze, path, start_cell, goal_cell)
+
 
 def main():
     # size of maze
@@ -235,12 +298,14 @@ def main():
     print("Total search time:", time.time() - start_time)
 
     if path_list is not []:
-        print('Path:', path_list)
+        print('Path:', [str(e) for e in path_list])
     else:
         print('No path found!')
 
+    display(maze, path_list, start_cell, goal_cell)
+
 if __name__ == '__main__':
-    main()
+    demo()
 
 
 
