@@ -216,13 +216,15 @@ class Astar():
 
 
 def display(maze: Maze, path: list, start_cell: Cell, goal_cell: Cell):
-    """Display the maze and solution"""
+    '''
+    Display the maze and solution
+    '''
     CELL_SIZE = 10
     print(maze.width, maze.height)
     root = tkinter.Tk()
     root.title('Maze')
     cv = tkinter.Canvas(root, bg='white', width=maze.width * CELL_SIZE, height=maze.height * CELL_SIZE)
-    # draw the path
+    # Draw the path
     for cell in path:
         i, j = cell.get_position()
         i, j = j, i
@@ -231,7 +233,7 @@ def display(maze: Maze, path: list, start_cell: Cell, goal_cell: Cell):
             (i + 1) * CELL_SIZE, (j + 1) * CELL_SIZE,
             fill='gray'
         )
-    # draw map
+    # Draw map
     for i in range(maze.height):
         for j in range(maze.width):
             # it's obstacle
@@ -244,7 +246,7 @@ def display(maze: Maze, path: list, start_cell: Cell, goal_cell: Cell):
                 )
             cv.create_rectangle(0, i * CELL_SIZE, maze.width * CELL_SIZE, i * CELL_SIZE)
             cv.create_rectangle(j * CELL_SIZE, 0, j * CELL_SIZE, maze.height * CELL_SIZE)
-    # draw start and goal
+    # Draw start and goal
     i, j = start_cell.get_position()
     i, j = j, i
     cv.create_text((i * CELL_SIZE + CELL_SIZE // 2, j * CELL_SIZE + CELL_SIZE // 2), text="S")
@@ -256,7 +258,9 @@ def display(maze: Maze, path: list, start_cell: Cell, goal_cell: Cell):
 
 
 def demo():
-    """A demo usage"""
+    '''
+    A demo for test
+    '''
     maze = Maze(10, 10)
     maze.data = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
