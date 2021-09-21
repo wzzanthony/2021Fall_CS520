@@ -40,8 +40,8 @@ class Cell:
             self.gn = 0
         else:
             self.gn = self.father_node.get_gn() + 1
-        # # For test purpose
-        print('Father node is: {}, current Gn = {}'.format(node_name,self.gn))
+        # For test purpose
+        # print('Father node is: {}, current Gn = {}'.format(node_name,self.gn))
 
     def get_position(self):
         '''
@@ -110,10 +110,10 @@ class Maze:
             msg = 'Number of obstacles is {}, which is more than total number of cells {}'.format(obstacle_num, self.width * self.height)
             raise AssertionError(msg)
         # Set obstacles
-        for num in range(obstacle_num):
-            i = random.randint(0, (self.width - 1))
-            j = random.randint(0, (self.height - 1))
-            self.obstacle(i, j)
+        positions = [(i, j) for i in range(self.height) for j in range(self.width)]
+        random.shuffle(positions)
+        for i in range(obstacle_num):
+            self.obstacle(positions[i][0], positions[i][1])
         self.show_maze()
 
     def draw_start(self, cell: Cell):
@@ -309,7 +309,7 @@ def main():
     display(maze, path_list, start_cell, goal_cell)
 
 if __name__ == '__main__':
-    demo()
+    main()
 
 
 
