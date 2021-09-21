@@ -9,7 +9,7 @@ class Cell:
 
 class Maze():
 
-    obstacle_num = 10
+    obstacle_num = 5000
 
     def __init__(self,Width,Height):
         self.width = Width
@@ -51,12 +51,12 @@ class Maze():
 
 
 start_cell = Cell(0, 0)
-goal_cell = Cell(9,9)
-maze = Maze(10,10)
+goal_cell = Cell(100,100)
+maze = Maze(101,101)
 
-maze.maze_obstacles_show(10,10)
+maze.maze_obstacles_show(101,101)
 maze.draw_start(start_cell)
 maze.draw_goal(goal_cell)
-print('-'*50)
+print('-'*500)
 maze.maze_empty_show()
 
