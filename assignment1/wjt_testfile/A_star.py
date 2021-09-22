@@ -63,14 +63,14 @@ class Stack():
         :param data: the data to be pushed
         """
         if len(self.items) != 0:
-            if data.get_total_d() > self.items[0].get_total_d():
+            if data.get_total_d() > self.items[0].get_hn():
                 self.items.insert(0, data)
-            elif data.get_total_d() < self.items[-1].get_total_d():
+            elif data.get_total_d() < self.items[-1].get_hn():
                 self.items.append(data)
             else:
                 # TODO this method compare data from the first in the list, change to the last one will be better
                 for index in range(len(self.items) - 1):
-                    if self.items[index].get_total_d() >= data.get_total_d() >= self.items[index + 1].get_total_d():
+                    if self.items[index].get_hn() >= data.get_total_d() >= self.items[index + 1].get_hn():
                         self.items.insert(index + 1, data)
                         break
         else:
