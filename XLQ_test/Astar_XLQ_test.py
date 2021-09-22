@@ -98,7 +98,7 @@ class Maze:
         '''
         Set obstacles with '#'
         '''
-        self.data[x][y] = "#"
+        self.data[x][y] = '#'
 
     def set_maze_obstacles(self, p:int):
         '''
@@ -110,7 +110,7 @@ class Maze:
         #     msg = 'Number of obstacles is {}, which is more than total number of cells {}'.format(obstacle_num, self.width * self.height)
         #     raise AssertionError(msg)
         # Set obstacles
-        positions = [(i, j) for i in range(1,self.width) for j in range(1,self.height)]
+        positions = [(i, j) for i in range(0,self.width) for j in range(0,self.height)]
         # random.shuffle(positions)
         # for i in range(obstacle_num):
         #     self.obstacle(positions[i][0], positions[i][1])
@@ -120,7 +120,7 @@ class Maze:
             if obstacle_probability <= p:
                 self.obstacle(cell[0],cell[1])
         # For test purpose
-        self.show_maze()
+        # self.show_maze()
 
     def count_obstacle(self):
         # Count total obstacles
@@ -295,6 +295,28 @@ def demo():
     # display(maze, path, start_cell, goal_cell)
 
 
+def Question_5():
+    # for i in range(100):
+    cnt = 0
+    maze = Maze(101, 101)
+    data = []
+    from Generate_maze import generate_one_maze
+    a = generate_one_maze()
+    for line in open("data.txt", "r"):  # 设置文件对象并读取每一行文件
+        data.append(line)  # 将每一行文件加入到list中
+    data = data[cnt*101][cnt*101 + 100]
+    maze.data = data
+    # maze.show_maze()
+    goal_cell = Cell((100, 100), (100, 100))
+    start_cell = Cell((0, 0), (100, 100))
+    astar = Search_Algorithm(start_cell=start_cell, goal_cell=goal_cell, maze=maze)
+    path_list, num = astar.run_Astar()
+    print('Path:', [str(e) for e in path_list])
+    print(f'Length of path: {len(path_list)}')
+    # display(maze, path_list, start_cell, goal_cell)
+
+
+
 def main_Astar():
     # size of maze
     size = 101
@@ -330,7 +352,9 @@ def main_Astar():
 
 
 if __name__ == '__main__':
-    main_Astar()
+    # main_Astar()
+
+    Question_5()
 
 
 
