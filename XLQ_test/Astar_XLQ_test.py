@@ -83,7 +83,7 @@ class Maze:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.data = [[0 for i in range(height)] for j in range(width)]
+        self.data = [[0 for i in range(width)] for j in range(height)]
 
     def show_maze(self):
         '''
@@ -100,21 +100,31 @@ class Maze:
         '''
         self.data[x][y] = "#"
 
-    def set_maze_obstacles(self, obstacle_num):
+    def set_maze_obstacles(self, p:int):
         '''
         Set the obstacles, there are obstacle_num obstacles
         '''
 
         # Check if the obstacles number is less than total cells number
-        if obstacle_num > self.width * self.height:
-            msg = 'Number of obstacles is {}, which is more than total number of cells {}'.format(obstacle_num, self.width * self.height)
-            raise AssertionError(msg)
+        # if obstacle_num > self.width * self.height:
+        #     msg = 'Number of obstacles is {}, which is more than total number of cells {}'.format(obstacle_num, self.width * self.height)
+        #     raise AssertionError(msg)
         # Set obstacles
-        positions = [(i, j) for i in range(self.height) for j in range(self.width)]
-        random.shuffle(positions)
-        for i in range(obstacle_num):
-            self.obstacle(positions[i][0], positions[i][1])
+        positions = [(i, j) for i in range(1,self.width) for j in range(1,self.height)]
+        # random.shuffle(positions)
+        # for i in range(obstacle_num):
+        #     self.obstacle(positions[i][0], positions[i][1])
+
+        for cell in positions:
+            obstacle_probability = random.randint(0,100)
+            if obstacle_probability <= p:
+                self.obstacle(cell[0],cell[1])
+        # For test purpose
         self.show_maze()
+
+    def count_obstacle(self):
+        # Count total obstacles
+        return sum(row.count('#') for row in self.data)
 
     def draw_start(self, cell: Cell):
         '''
@@ -162,7 +172,7 @@ class Maze:
         return children_list
 
 
-class Astar():
+class Search_Algorithm():
     '''
     Astar algorithm
     '''
@@ -178,12 +188,14 @@ class Astar():
         open_list = queue.PriorityQueue()
         open_list.put((self.start_cell.fn, self.start_cell))    # (fn, cell)
         closed_dict = dict()   # { current_cell : gn }
+        num_processed_cells = 0
         # When open_list is not empty
         while not open_list.empty():
             fn, current_cell = open_list.get()
+            num_processed_cells += 1
             # reach the goal cell
             if current_cell.get_position() == self.goal_cell.get_position():
-                return self.get_path(current_cell)
+                return self.get_path(current_cell), num_processed_cells
             # the current cell has been visited
             if current_cell in closed_dict:
                 continue
@@ -200,7 +212,7 @@ class Astar():
                     closed_dict.pop(child_cell)
                     open_list.put((child_cell.fn, child_cell))
         # If no path found
-        return []
+        return [],0
 
     def get_path(self, current_cell: Cell):
         '''
@@ -221,6 +233,7 @@ def display(maze: Maze, path: list, start_cell: Cell, goal_cell: Cell):
     '''
     CELL_SIZE = 10
     print(maze.width, maze.height)
+    # Create a window
     root = tkinter.Tk()
     root.title('Maze')
     cv = tkinter.Canvas(root, bg='white', width=maze.width * CELL_SIZE, height=maze.height * CELL_SIZE)
@@ -231,7 +244,7 @@ def display(maze: Maze, path: list, start_cell: Cell, goal_cell: Cell):
         cv.create_rectangle(
             i * CELL_SIZE, j * CELL_SIZE,
             (i + 1) * CELL_SIZE, (j + 1) * CELL_SIZE,
-            fill='gray'
+            fill='red'
         )
     # Draw map
     for i in range(maze.height):
@@ -276,40 +289,48 @@ def demo():
     maze.show_maze()
     goal_cell = Cell((9, 9), (9, 9))
     start_cell = Cell((0, 0), (9, 9))
-    astar = Astar(start_cell=start_cell,goal_cell=goal_cell,maze=maze)
+    astar = Search_Algorithm(start_cell=start_cell, goal_cell=goal_cell, maze=maze)
     path = astar.run_Astar()
     print('Path:',[str(e) for e in path])
-    display(maze, path, start_cell, goal_cell)
+    # display(maze, path, start_cell, goal_cell)
 
 
-def main():
+def main_Astar():
     # size of maze
     size = 101
     # number of obstacles
     num_obstacles = 2000
+    # p*100
+    p = 33
     # start and goal
     start_cell = Cell(position=(0, 0), goal_position=(size - 1, size - 1))
     goal_cell = Cell(position=(size - 1, size - 1), goal_position=(size - 1, size - 1))
     # Initialize maze
     maze = Maze(size, size)
-    maze.set_maze_obstacles(num_obstacles)
+    maze.set_maze_obstacles(p)
     maze.draw_start(start_cell)
     maze.draw_goal(goal_cell)
-    astar = Astar(start_cell=start_cell,goal_cell=goal_cell,maze=maze)
+    search_algorithm = Search_Algorithm(start_cell=start_cell, goal_cell=goal_cell, maze=maze)
+    # Count obstacles
+    obstacles_cnt = maze.count_obstacle()
+    print(f'Total obstacles: {obstacles_cnt}')
     # Calculate total time the A* research algorithm use
     start_time = time.time()
-    path_list = astar.run_Astar()
-    print("Total search time:", time.time() - start_time)
+    path_list, num_processed_cells = search_algorithm.run_Astar()
+    print('Total search time: ', time.time() - start_time)
+    print('Total cells processed: ',num_processed_cells)
 
     if path_list is not []:
         print('Path:', [str(e) for e in path_list])
+        print(f'Length of path: {len(path_list)}, P={p/100}%')
     else:
         print('No path found!')
 
     display(maze, path_list, start_cell, goal_cell)
 
+
 if __name__ == '__main__':
-    main()
+    main_Astar()
 
 
 
