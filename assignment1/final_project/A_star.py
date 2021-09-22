@@ -135,7 +135,7 @@ def search(open_stack, block_list: list, close_list: list, rows: int, columns: i
     return False, open_stack
 
 
-def find_path(current_node: Node):
+def find_path(current_node: Node, start_node=[0, 0]):
     """
     find the way from the existing tree
     :param current_node: when finding out the available way, this is the final fringe
@@ -145,7 +145,7 @@ def find_path(current_node: Node):
     while True:
         current_position = current_node.get_items()
         # if not find the top, keep searching
-        if current_position != [0, 0]:
+        if current_position != start_node:
             path_list.append(current_position)
             current_node = current_node.get_father_node()
             continue
@@ -200,4 +200,36 @@ def A_star_search(maze: list, rows: int, columns: int, model="E"):
     else:
         # if there is a way out, return that way
         path_list = find_path(current_node=open_stack)
+        return path_list
+
+
+def A_star_for_repeat(block_list: list, rows: int, columns: int, start_cell: list, end_cell: list, model: str,
+                      close_list: list):
+    # create start fringe of each A*
+    start_node = Node(position=start_cell,
+                      father=None,
+                      end_point=end_cell,
+                      model=model)
+
+    # use priorityQueue
+    open_stack = queue.PriorityQueue()
+    open_stack.put(start_node)
+
+    status = False
+    # find the path using A*
+    while not status:
+        status, open_stack = search(open_stack=open_stack,
+                                    block_list=block_list,
+                                    close_list=close_list,
+                                    rows=rows,
+                                    columns=columns,
+                                    model=model)
+
+    if open_stack is None:
+        # if there  is no way out, return empty list
+        return []
+    else:
+        # if there is a way out, return that way
+        path_list = find_path(current_node=open_stack,
+                              start_node=start_cell)
         return path_list
