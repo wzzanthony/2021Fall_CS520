@@ -11,11 +11,13 @@ def generate_one_maze():
 
     print(data)
 
-    with open("data.txt","w") as f:                                                   #设置文件对象
-        for i in data:                                                                 #对于双层列表中的数据
-            i = str(i).strip('[').strip(']').replace(',','').replace('\'','')+'\n'  #将其中每一个列表规范化成字符串
-            f.write(i)
-
+    with open("data.txt","w") as file:
+        for i in range(len(data)):
+            s = str(data[i]).replace('[', '').replace(']', '')
+            s = s.replace("'", '').replace(',', '').replace('\'','') + '\n'
+            file.write(s)
+        file.close()
+        print("保存文件成功")
 
 
 def generate_100_maze():

@@ -295,26 +295,6 @@ def demo():
     # display(maze, path, start_cell, goal_cell)
 
 
-def Question_5():
-    # for i in range(100):
-    cnt = 0
-    maze = Maze(101, 101)
-    data = []
-    from Generate_maze import generate_one_maze
-    a = generate_one_maze()
-    for line in open("data.txt", "r"):  # 设置文件对象并读取每一行文件
-        data.append(line)  # 将每一行文件加入到list中
-    data = data[cnt*101][cnt*101 + 100]
-    maze.data = data
-    # maze.show_maze()
-    goal_cell = Cell((100, 100), (100, 100))
-    start_cell = Cell((0, 0), (100, 100))
-    astar = Search_Algorithm(start_cell=start_cell, goal_cell=goal_cell, maze=maze)
-    path_list, num = astar.run_Astar()
-    print('Path:', [str(e) for e in path_list])
-    print(f'Length of path: {len(path_list)}')
-    # display(maze, path_list, start_cell, goal_cell)
-
 
 
 def main_Astar():
@@ -351,10 +331,66 @@ def main_Astar():
     display(maze, path_list, start_cell, goal_cell)
 
 
+
+def Question_5():
+    path_len_list = []
+    data = []
+    # Generate 100 maze
+    from Generate_maze import generate_100_maze
+    a = generate_100_maze()
+    # Read the maze from the data.txt
+    for line in open("data.txt", "r"):
+        data.append(line)
+
+    for i in range(10):
+        cnt = i
+        maze = Maze(101, 101)
+        data = data[cnt*100][cnt*100 + 100]
+        maze.data = data
+        # maze.show_maze()
+        goal_cell = Cell((100, 100), (100, 100))
+        start_cell = Cell((0, 0), (100, 100))
+        astar = Search_Algorithm(start_cell=start_cell, goal_cell=goal_cell, maze=maze)
+        path_list, num = astar.run_Astar()
+        path_len_list.append(len(path_list))
+    print(path_len_list)
+
+
+def Question5_test():
+    path_len_list = []
+    # for i in range(10):
+    cnt = 0
+    data = []
+    size = 101
+    maze = Maze(size, size)
+
+    from Generate_maze import generate_one_maze
+    a = generate_one_maze()
+    # Read the maze from the data.txt
+    for line in open("data.txt", "r"):
+        data.append(line)
+    # print(f'Data: {data}')
+
+    # data = data[cnt*101][cnt*101 + 100]
+    maze.data = data
+    maze.show_maze()
+    start_cell = Cell(position=(0, 0), goal_position=(size - 1, size - 1))
+    goal_cell = Cell(position=(size - 1, size - 1), goal_position=(size - 1, size - 1))
+    astar = Search_Algorithm(start_cell=start_cell, goal_cell=goal_cell, maze=maze)
+    path_list, num = astar.run_Astar()
+    # print('Path:', [str(e) for e in path_list])
+    # print(f'Length of path: {len(path_list)}')
+    path_len_list.append(len(path_list))
+    print(path_len_list)
+
+    display(maze, path_list, start_cell, goal_cell)
+
+
+
 if __name__ == '__main__':
     # main_Astar()
-
-    Question_5()
+    Question5_test()
+    # Question_5()
 
 
 
