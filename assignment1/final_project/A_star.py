@@ -95,6 +95,24 @@ def check_exit(point: list, block_list: list, close_list: list, rows: int, colum
     return return_point_list
 
 
+def check_exit_for_repeat(maze:list, point: list, block_list: list, close_list: list, rows: int, columns: int):
+    return_point_list = []
+    # the around point of current point
+    # we only find point from four directions: up, down, left, right
+    point_around = [[point[0] - 1, point[1]], [point[0] + 1, point[1]], [point[0], point[1] - 1],
+                    [point[0], point[1] + 1]]
+    for each_point in point_around:
+        # test if point in the maze
+        if 0 <= each_point[0] < rows:
+            if 0 <= each_point[1] < columns:
+                # test if the point can pass
+                if maze[each_point[0]][each_point[1]]==1:
+                    if each_point not in block_list:
+                        block_list.append(each_point)
+                elif each_point not in close_list:
+                    return_point_list.append(each_point)
+    return return_point_list, block_list
+
 def search(open_stack, block_list: list, close_list: list, rows: int, columns: int, model):
     """
     search path in the maze
