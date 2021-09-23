@@ -14,13 +14,13 @@ class Cell:
         # Heuristic cost from n to Goal_cell: hn
 
         # Use Euclidean Distance
-        # self.hn = math.sqrt((position[0] - goal_cell[0]) ** 2 + (position[1] - goal_cell[1]) ** 2)
+        # self.hn = math.sqrt((position[0] - goal_position[0]) ** 2 + (position[1] - goal_position[1]) ** 2)
 
         # Use Manhattan Distance
         self.hn = abs(position[0] - goal_position[0]) + abs(position[1] - goal_position[1])
 
         # Use Chebyshev Distance
-        # self.hn = max(abs(position[0] - goal_cell[0]), abs(position[1] - goal_cell[1]))
+        # self.hn = max(abs(position[0] - goal_position[0]), abs(position[1] - goal_position[1]))
 
         # Real cost from Start_cell to n: g(n)
         if father_node is None:
@@ -345,9 +345,8 @@ def Question_5():
     for i in range(10):
         cnt = i
         maze = Maze(101, 101)
-        data = data[cnt*100][cnt*100 + 100]
+        data = data[cnt*101+1][(cnt+1)*101]
         maze.data = data
-        # maze.show_maze()
         goal_cell = Cell((100, 100), (100, 100))
         start_cell = Cell((0, 0), (100, 100))
         astar = Search_Algorithm(start_cell=start_cell, goal_cell=goal_cell, maze=maze)
@@ -358,14 +357,13 @@ def Question_5():
 
 def Question5_test():
     path_len_list = []
-    # for i in range(10):
     cnt = 0
     data = []
     size = 101
     maze = Maze(size, size)
 
-    from Generate_maze import generate_one_maze
-    a = generate_one_maze()
+    # from Generate_maze import generate_one_maze
+    # a = generate_one_maze()
     # Read the maze from the data.txt
     for line in open("data.txt", "r"):
         data.append(line)
@@ -389,8 +387,8 @@ def Question5_test():
 
 if __name__ == '__main__':
     # main_Astar()
-    Question5_test()
-    # Question_5()
+    # Question5_test()
+    Question_5()
 
 
 
