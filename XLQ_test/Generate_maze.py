@@ -4,7 +4,7 @@ import random
 def generate_one_maze():
     data = [[0 for i in range(101)] for j in range(101)]
 
-    positions = [(i, j) for i in range(0, 101) for j in range(0, 101)]
+    positions = [(index_x, index_y) for index_x in range(0, 101) for index_y in range(0, 101)]
     for cell in positions:
         obstacle_probability = random.randint(0, 100)
         if obstacle_probability <= 30:
