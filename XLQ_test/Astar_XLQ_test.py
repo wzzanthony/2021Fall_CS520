@@ -342,11 +342,12 @@ def Question_5():
     for line in open("data.txt", "r"):
         data.append(line)
 
-    for i in range(10):
+    for i in range(9):
         cnt = i
         maze = Maze(101, 101)
-        data = data[cnt*101+1][(cnt+1)*101]
-        maze.data = data
+        # sub_data = data[cnt*101+1][(cnt+1)*101]
+        sub_data=data[cnt*101:(cnt+1)*101]
+        maze.data = sub_data
         goal_cell = Cell((100, 100), (100, 100))
         start_cell = Cell((0, 0), (100, 100))
         astar = Search_Algorithm(start_cell=start_cell, goal_cell=goal_cell, maze=maze)
