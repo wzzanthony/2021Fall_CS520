@@ -88,6 +88,33 @@ def check_route(path: list, block_list_info: list, closed_list: list, maze: list
     return path
 
 
+def check_hallway(maze:list, path:list, rows:int, columns:int, re_start_cell:Node):
+    if len(path)==0:
+        return path
+    while True:
+        point = path[-1]
+        surround_cells=[[point[0] - 1, point[1]], [point[0] + 1, point[1]], [point[0], point[1] - 1],
+                    [point[0], point[1] + 1]]
+        surround_cells_copy=surround_cells.copy()
+        for surround_cell in surround_cells_copy:
+            if 0<=surround_cell[0]<rows:
+                if 0<=surround_cell[1]<columns:
+                    if maze[surround_cell[0]][surround_cell[1]]!=1:
+                        continue
+            surround_cells.remove(surround_cell)
+        if len(surround_cells)==2:
+            if len(path)==1:
+                pre_cell=re_start_cell.get_father_node().get_items()
+            else:
+                pre_cell=path[-2]
+            surround_cells.remove(pre_cell)
+            new_cell=surround_cells[0]
+            path.append(new_cell)
+        else:
+            break
+    return path
+
+
 def improved_repeat_A_star(start_point: list, end_point: list, maze: list, rows: int, columns: int, model="E"):
     """
     the main algorithm of improved repeat forward A*
@@ -122,6 +149,13 @@ def improved_repeat_A_star(start_point: list, end_point: list, maze: list, rows:
                             block_list_info=block_list.copy(),
                             closed_list=closed_list.copy(),
                             maze=maze)
+
+        # go into the hallway
+        route=check_hallway(maze=maze,
+                            path=route,
+                            rows=rows,
+                            columns=columns,
+                            re_start_cell=re_start_cell)
 
         # change cell list to cell node list
         node_path = generate_path_list(re_start_cell=re_start_cell,
