@@ -72,35 +72,35 @@ def test(dim: int, p: float, num_experiment=NUM_EXPERIMENT):
         search_time = time.time() - search_start
         total_search_time_BFS += search_time
 
-        if trajectory_path:
-            a_ra += len(trajectory_path)
-            na_ra += 1
-
-        if BFS_path:
-            a_BFS += len(BFS_path)
-            na_BFS += 1
-
-        # search in the Final Discovered Gridworld
-        astar = AStar(repeated_forward_astar.discovered_maze, euclidean_heuristic)
-        path = astar.search(start_cell, goal_cell)
-
-        if len(path) != 0:
-            nb_ra += 1
-            b_ra += len(trajectory_path) / len(path)
-
-            nb_BFS += 1
-            b_BFS += len(BFS_path) / len(path)
-
-        # search in the Full GridWorld
-        astar = AStar(maze, euclidean_heuristic)
-        path = astar.search(start_cell, goal_cell)
-
-        if len(path) != 0:
-            nc_ra += 1
-            c_ra += len(trajectory_path) / len(path)
-
-            nc_BFS += 1
-            c_BFS += len(BFS_path) / len(path)
+        # if trajectory_path:
+        #     a_ra += len(trajectory_path)
+        #     na_ra += 1
+        #
+        # if BFS_path:
+        #     a_BFS += len(BFS_path)
+        #     na_BFS += 1
+        #
+        # # search in the Final Discovered Gridworld
+        # astar = AStar(repeated_forward_astar.discovered_maze, euclidean_heuristic)
+        # path = astar.search(start_cell, goal_cell)
+        #
+        # if len(path) != 0:
+        #     nb_ra += 1
+        #     b_ra += len(trajectory_path) / len(path)
+        #
+        #     nb_BFS += 1
+        #     b_BFS += len(BFS_path) / len(path)
+        #
+        # # search in the Full GridWorld
+        # astar = AStar(maze, euclidean_heuristic)
+        # path = astar.search(start_cell, goal_cell)
+        #
+        # if len(path) != 0:
+        #     nc_ra += 1
+        #     c_ra += len(trajectory_path) / len(path)
+        #
+        #     nc_BFS += 1
+        #     c_BFS += len(BFS_path) / len(path)
 
         d_ra += len(repeated_forward_astar.cell_processed)
         d_BFS += len(repeated_BFS.cell_processed)
@@ -250,8 +250,8 @@ def main():
     repeat_A_star_line, = plt.plot(PS, [e[3] for e in result], color='red')
     repeat_BFS_line, = plt.plot(PS, [e[8] for e in result], color='blue')
     plt.xlabel('Density')
-    plt.ylabel('Number of Cells Processed by Repeated A*')
-    plt.title('Density VS. Number of Cells Processed by Repeated A*)')
+    plt.ylabel('Number of Cells Processed ')
+    plt.title('Density VS. Number of Cells Processed')
     plt.legend(handles=[repeat_A_star_line, repeat_BFS_line],
                labels=['Repeat Forward A*', 'Repeat BFS'],
                loc='best')
@@ -263,7 +263,7 @@ def main():
     repeat_BFS_line, = plt.plot(PS, [e[9] for e in result], color='blue')
     plt.xlabel('Density')
     plt.ylabel('Search Time*')
-    plt.title('Density VS. Average search time)')
+    plt.title('Density VS. Average search time')
     plt.legend(handles=[repeat_A_star_line, repeat_BFS_line],
                labels=['Repeat Forward A*', 'Repeat BFS'],
                loc='best')
@@ -319,8 +319,8 @@ def main_bump_in():
     repeat_A_star_line, = plt.plot(PS, [e[3] for e in result], color='red')
     repeat_BFS_line, = plt.plot(PS, [e[8] for e in result], color='blue')
     plt.xlabel('Density')
-    plt.ylabel('Number of Cells Processed by Repeated A*')
-    plt.title('Density VS. Number of Cells Processed by Repeated A*)')
+    plt.ylabel('Number of Cells Processed')
+    plt.title('Density VS. Number of Cells Processed')
     plt.legend(handles=[repeat_A_star_line, repeat_BFS_line],
                labels=['Repeat Forward A*', 'Repeat BFS'],
                loc='best')
@@ -355,6 +355,6 @@ def test_main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
     # test_main()
     main_bump_in()

@@ -63,15 +63,16 @@ def repeat_A_star(maze: list, rows: int, columns: int, start_cell: list, end_cel
                                                    rows=rows,
                                                    columns=columns)
         # check if path has been found
-        if worked_path_list[-1] == end_cell:
-            # if the path has been found, return the found path
-            path_list.extend(worked_path_list)
-            status = True
-            # continue
-        else:
-            # if the path has not been found, change start cell to current cell and re-calculate the path
-            path_list.extend(worked_path_list)
-            start_cell = path_list[-1]
+        if len(worked_path_list)!=0:
+            if worked_path_list[-1] == end_cell:
+                # if the path has been found, return the found path
+                path_list.extend(worked_path_list)
+                status = True
+                # continue
+            else:
+                # if the path has not been found, change start cell to current cell and re-calculate the path
+                path_list.extend(worked_path_list)
+                start_cell = path_list[-1]
 
     # test if the path is available
     if path_list[-1] != end_cell:

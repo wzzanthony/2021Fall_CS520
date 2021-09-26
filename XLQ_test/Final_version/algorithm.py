@@ -18,8 +18,8 @@ class AStar:
         # calculate fn and hn
         start_cell.update_fn(self.heuristic, goal_cell)
 
-        open_list.put((start_cell.fn, start_cell))   # (fn, Cell)
-        closed_dict = dict()   # cells already visited, {Cell : gn}
+        open_list.put((start_cell.fn, start_cell))  # (fn, Cell)
+        closed_dict = dict()  # cells already visited, {Cell : gn}
         while not open_list.empty():
             fn, current_cell = open_list.get()
             # reach the goal cell
@@ -31,7 +31,7 @@ class AStar:
             closed_dict[current_cell] = current_cell.gn
             # Generate the children of n (neighbors believed or known to be unoccupied)
             for child_cell in self.maze.generate_children(current_cell, goal_cell):
-                #update hn and fn of child cell
+                # update hn and fn of child cell
                 child_cell.update_fn(self.heuristic, goal_cell)
                 '''
                 The successors of n are the children n0 that are newly discovered, or g(n0) > g(n) + 1.
@@ -85,7 +85,7 @@ class RepeatedForwardAStar:
         Find the first cell that are not in the hallway
         '''
         # stats = []
-        for index in range(-1, -len(moved_path) - 1, -1):   # From the last one to the first one
+        for index in range(-1, -len(moved_path) - 1, -1):  # From the last one to the first one
             cell = moved_path[index]
             x, y = cell.get_position()
             num_neighbours = 0
@@ -93,7 +93,8 @@ class RepeatedForwardAStar:
             for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
                 nx, ny = x + dx, y + dy
                 # neighbour is valid
-                if self.discovered_maze.position_is_valid(nx, ny):    # After using search(), discovered_maze has already became a Maze
+                if self.discovered_maze.position_is_valid(nx,
+                                                          ny):  # After using search(), discovered_maze has already became a Maze
                     num_neighbours += 1
                     #  neighbour is obstacle
                     if self.discovered_maze.is_obstacle(nx, ny):
@@ -148,6 +149,9 @@ class RepeatedForwardAStar:
                     cell = path[index_of_first_obstacle]
                     x, y = cell.get_position()
                     self.discovered_maze.set_obstacle(x, y)
+                    for each_cell in valid_path:
+                        x, y = each_cell.get_position()
+                        self.cell_processed.add((x, y))
 
             # agent moves in the valid path
             moved_path.extend(valid_path)
@@ -182,6 +186,7 @@ class BFS:
     '''
     BFS algorithm, accept the maze, start and goal cell
     '''
+
     def __init__(self, maze: Maze):
         self.maze = maze
 
@@ -297,6 +302,9 @@ class RepeatedForwardBFS:
                     cell = path[index_of_first_obstacle]
                     x, y = cell.get_position()
                     self.discovered_maze.set_obstacle(x, y)
+                    for each_cell in valid_path:
+                        x, y = each_cell.get_position()
+                        self.cell_processed.add((x, y))
 
             # agent moves in the valid path
             moved_path.extend(valid_path)
