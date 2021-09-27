@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 from A_star_Q9 import Cell, Maze
 from A_star_Q9 import AStar as Heuristics_AStar
-from config import Q9_PS, Q9_NUM_EXPERIMENT, Q9_QS
+from config import Q9_PS, Q9_NUM_EXPERIMENT
 
 sys.path.append('..\\..\\XLQ_test\\Final_version')
 
@@ -27,11 +27,13 @@ def test(dim: int, num_experiment=Q9_NUM_EXPERIMENT):
     # data=[0]*len(Q9_QS)
     # print(Q9_QS)
     # print(data)
-    time_PS=[0.0]*len(Q9_PS)
+    data_time_as = [0.0] * len(Q9_PS)
+    data_path_as = [0.0] * len(Q9_PS)
+    data_time_hs = [0.0] * len(Q9_PS)
+    data_path_hs = [0.0] * len(Q9_PS)
+
     for index_p, p in enumerate(Q9_PS):
-        data_time = [0.0] * len(Q9_QS)
-        data_path=[0.0]*len(Q9_QS)
-        count=0
+        count = 0
         for random_seed in tqdm(range(num_experiment)):
             maze = Maze(dim, dim)
             maze.initialize_maze(p, random_seed=random_seed)
@@ -40,38 +42,54 @@ def test(dim: int, num_experiment=Q9_NUM_EXPERIMENT):
             goal_cell_as=Cell_AS((dim - 1, dim - 1))
             start_cell_as=Cell_AS((0, 0))
             astar_search=AStar(maze, euclidean_heuristic)
+            start_time = time.time()
             astar_path=astar_search.search(start_cell_as, goal_cell_as)
+            search_time_as=time.time()-start_time
             if len(astar_path)==0:
                 continue
             count+=1
+            data_time_as[index_p]+=search_time_as
+            data_path_as[index_p]+=len(astar_path)
             heuristics_search=Heuristics_AStar(maze,euclidean_heuristic)
-            for index, q in enumerate(Q9_QS):
-                start_time=time.time()
-                trajectory_path=heuristics_search.search(start_cell, goal_cell, q)
-                search_time=time.time()-start_time
-                data_time[index]+=search_time
-                data_path[index]+=len(trajectory_path)
+            start_time=time.time()
+            trajectory_path=heuristics_search.search(start_cell, goal_cell, p)
+            search_time_hs=time.time()-start_time
+            data_time_hs[index_p]+=search_time_hs
+            data_path_hs[index_p]+=len(trajectory_path)
         if count!=0:
             # average_data_time=data_time/count
-            average_data_time=[0]*len(data_time)
-            for index_data_time in range(len(data_time)):
-                average_data_time[index_data_time]=data_time[index_data_time]/count
-            # average_data_path=data_path/count
-        min_time=min(average_data_time)
-        time_PS[index_p]=Q9_QS[average_data_time.index(min_time)]
-        print("P: %f, Q: %F, count: %d"%(p,time_PS[index_p],count))
-    return time_PS
+            data_path_as[index_p]=data_path_as[index_p]/count
+            data_path_hs[index_p]=data_path_hs[index_p]/count
+            data_time_as[index_p]=data_time_as[index_p]/count
+            data_time_hs[index_p]=data_time_hs[index_p]/count
+    return data_path_as, data_time_as, data_path_hs, data_time_hs
 
 def main():
     dim = 101
-    result=test(dim, Q9_NUM_EXPERIMENT)
+    data_path_as, data_time_as, data_path_hs, data_time_hs=test(dim, Q9_NUM_EXPERIMENT)
 
     plt.figure(figsize=(8, 5))
-    plt.plot(Q9_PS, result, color='red')
+    line1, = plt.plot(Q9_PS, data_time_as, color='red')
+    line2, = plt.plot(Q9_PS, data_time_hs, color='blue')
     plt.xlabel('Density')
-    plt.ylabel('Weight')
-    plt.title('Density VS. Weight')
+    plt.ylabel('Average time')
+    plt.title('Density VS. Average time')
+    plt.legend(handles=[line1, line2],
+               labels=['Repeat Forward A*', 'Heuristics A*'],
+               loc='best')
     plt.savefig('result\\Q9_1.png')
+    plt.show()
+
+    plt.figure(figsize=(8, 5))
+    line1, = plt.plot(Q9_PS, data_path_as, color='red')
+    line2, = plt.plot(Q9_PS, data_path_hs, color='blue')
+    plt.xlabel('Density')
+    plt.ylabel('Average trajectory path')
+    plt.title('Density VS. Average trajectory path')
+    plt.legend(handles=[line1, line2],
+               labels=['Repeat Forward A*', 'Heuristics A*'],
+               loc='best')
+    plt.savefig('result\\Q9_2.png')
     plt.show()
 
 
