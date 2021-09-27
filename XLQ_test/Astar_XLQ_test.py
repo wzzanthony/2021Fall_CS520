@@ -290,9 +290,9 @@ def demo():
     goal_cell = Cell((9, 9), (9, 9))
     start_cell = Cell((0, 0), (9, 9))
     astar = Search_Algorithm(start_cell=start_cell, goal_cell=goal_cell, maze=maze)
-    path = astar.run_Astar()
-    print('Path:',[str(e) for e in path])
-    # display(maze, path, start_cell, goal_cell)
+    path_list, num = astar.run_Astar()
+    print('Path:',[str(e) for e in path_list])
+    display(maze, path_list, start_cell, goal_cell)
 
 
 
@@ -389,7 +389,8 @@ def Question5_test():
 if __name__ == '__main__':
     # main_Astar()
     # Question5_test()
-    Question_5()
+    # Question_5()
+    demo()
 
 
 
