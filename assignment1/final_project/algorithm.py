@@ -110,17 +110,21 @@ class RepeatedForwardAStar:
             current_cell = path[-1]
             if current_cell.get_position()==(100,100):
                 break
+            # surround cells of the current cell
             surround_cells=[[-1,0],[1,0],[0,-1],[0,1]]
             x,y=current_cell.get_position()
             for dx, dy in surround_cells.copy():
                 nx,ny=x+dx,y+dy
+                # if surround cell does not exist or is an obstacle, remove it
                 if not self.maze.position_is_valid(nx,ny):
                     surround_cells.remove([dx,dy])
                 elif self.maze.is_obstacle(nx, ny):
                     surround_cells.remove([dx,dy])
+            # if one cell only has two ways, move to the new way
             if len(surround_cells)==2:
                 pre_x,pre_y=current_cell.get_father_node().get_position()
                 surround_cells.remove([pre_x - x, pre_y - y])
+                # add new cell into the path
                 new_x, new_y = x + surround_cells[0][0], y + surround_cells[0][1]
                 new_cell = Cell((new_x, new_y), current_cell)
                 new_cell.update_fn(heuristic, goal_cell)
