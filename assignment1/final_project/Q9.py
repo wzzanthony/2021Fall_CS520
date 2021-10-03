@@ -12,7 +12,7 @@ from config import Q9_PS, Q9_NUM_EXPERIMENT
 sys.path.append('..\\..\\XLQ_test\\Final_version')
 
 from algorithm import AStar
-from maze import Cell as Cell_AS
+from maze_1 import Cell as Cell_AS
 
 
 
@@ -75,7 +75,7 @@ def main():
     plt.ylabel('Average time')
     plt.title('Density VS. Average time')
     plt.legend(handles=[line1, line2],
-               labels=['Repeat Forward A*', 'Heuristics A*'],
+               labels=['Astar', 'No-admissible heuristic A*'],
                loc='best')
     plt.savefig('result\\Q9_1.png')
     plt.show()
@@ -87,7 +87,7 @@ def main():
     plt.ylabel('Average trajectory path')
     plt.title('Density VS. Average trajectory path')
     plt.legend(handles=[line1, line2],
-               labels=['Repeat Forward A*', 'Heuristics A*'],
+               labels=['Astar', 'No-admissible heuristic A*'],
                loc='best')
     plt.savefig('result\\Q9_2.png')
     plt.show()
