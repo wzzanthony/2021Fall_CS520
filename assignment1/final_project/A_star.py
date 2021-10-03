@@ -43,11 +43,11 @@ class Node:
         return self.fn
 
     # add for priority queue
-    def __gt__(self, other):
-        return self.fn > other.get_fn()
-
-    def __eq__(self, other):
-        return self.fn == other.get_fn()
+    # def __gt__(self, other):
+    #     return self.fn > other.get_fn()
+    #
+    # def __eq__(self, other):
+    #     return self.fn == other.get_fn()
 
     def __lt__(self, other):
         return self.fn < other.get_fn()
@@ -69,7 +69,7 @@ def get_block(maze_info: list, rows: int, columns: int):
     return block_list
 
 
-def check_exit(point: list, block_list: list, close_list: list, rows: int, columns: int):
+def check_exit(point: list, maze: list, close_list: dict, rows: int, columns: int):
     """
     check if the points are existing
     :param point: current point
@@ -88,9 +88,9 @@ def check_exit(point: list, block_list: list, close_list: list, rows: int, colum
         if 0 <= each_point[0] < rows:
             if 0 <= each_point[1] < columns:
                 # test if the point can pass
-                if each_point not in block_list:
+                if maze[each_point[0]][each_point[1]]!=1:
                     # test if the point has not be used
-                    if each_point not in close_list:
+                    if str(each_point[0])+","+str(each_point[1]) not in close_list:
                         return_point_list.append(each_point)
     return return_point_list
 
@@ -124,8 +124,57 @@ def search(open_stack, block_list: list, close_list: list, rows: int, columns: i
     :param model: use distance model
     """
     # create new stack to store all the new point
+
+
     if open_stack.empty():
         return True, None
+
+
+    # find the new point
+    pre_node = open_stack.get()
+    # find the available point
+    point_around_list = check_exit(point=pre_node.get_items(),
+                                   block_list=block_list,
+                                   close_list=close_list,
+                                   rows=rows,
+                                   columns=columns)
+    for each_point_around in point_around_list:
+        # if find the end point, return all the tree
+        if [rows - 1, columns - 1] == each_point_around:
+            end_node = Node(position=[rows - 1, columns - 1],
+                            father=pre_node,
+                            end_point=[rows - 1, columns - 1],
+                            model=model)
+            return True, end_node
+        # if not find the end point, add the current point to the tree, then return next stack
+        else:
+            new_node = Node(each_point_around,
+                            father=pre_node,
+                            end_point=[rows - 1, columns - 1],
+                            model=model)
+            open_stack.put(new_node)
+            close_list.append(each_point_around)
+    return False, open_stack
+
+
+
+def search_repeat(open_stack, block_list: list, close_list: list, rows: int, columns: int, model):
+    """
+    search path in the maze
+    :param open_stack: point that should be test in the next iteration
+    :param block_list: point that cannot pass
+    :param close_list: point that already used
+    :param rows: total rows of the maze
+    :param columns: total columns of the maze
+    :param model: use distance model
+    """
+    # create new stack to store all the new point
+
+
+    if open_stack.empty():
+        return True, None
+
+
     # find the new point
     pre_node = open_stack.get()
     # find the available point
@@ -235,6 +284,7 @@ def A_star_for_repeat(block_list: list, rows: int, columns: int, start_cell: lis
 
     status = False
     # find the path using A*
+    print("************************************")
     while not status:
         status, open_stack = search(open_stack=open_stack,
                                     block_list=block_list,
@@ -242,6 +292,8 @@ def A_star_for_repeat(block_list: list, rows: int, columns: int, start_cell: lis
                                     rows=rows,
                                     columns=columns,
                                     model=model)
+
+    print("************************************")
 
     if open_stack is None:
         # if there  is no way out, return empty list
