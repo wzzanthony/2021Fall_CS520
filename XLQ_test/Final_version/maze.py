@@ -12,6 +12,12 @@ class Cell:
         self.gn = 0 if father_node is None else self.father_node.get_gn() + 1
         self.hn = None
         self.fn = None
+        # Spacial sensing
+        self.num_sensed_neighbours = None
+        self.num_sensed_block = None
+        self.num_confirm_block = None
+        self.num_confirm_empty = None
+        self.num_unconfirmed_neighbours = None
 
     def get_position(self):
         return self.position
@@ -126,6 +132,36 @@ class Maze:
             ni, nj = i + di, j + dj
             # the position is valid and it's not an obstacle
             if self.position_is_valid(ni, nj) and not self.is_obstacle(ni, nj):
-                child = Cell((ni, nj), cell)   # set the father node simultaneously
+                child = Cell(position=(ni, nj), father_node=cell)   # set the father node simultaneously
                 children_list.append(child)
         return children_list
+
+    def generate_spacial_sensed_neighbours(self, cell:Cell):
+        '''
+        Generate neighbour cells that can be sensed by spacial sensing
+        '''
+        dij = [(1,1),(1,-1),(1,0),(0,1),(0,-1),(-1,1),(-1,-1),(-1,0)]    # eight cells can be sensed
+        sensed_neighbours_list = []
+        i, j = cell.get_position()
+        for di, dj in dij:
+            ni, nj = i + di, j + dj:
+            if self.position_is_valid(ni, nj):
+                each_sensed_neighbour = Cell(position=(ni, nj), father_node=cell)
+                sensed_neighbours_list.append(each_sensed_neighbour)
+        return sensed_neighbours_list
+
+    def get_spacial_info(self, path_list:list):
+        for cell in path_list:
+            sensed_neighbours_list = self.generate_spacial_sensed_neighbours(cell)
+            for neighbour in sensed_neighbours_list:
+                obstacles_sum = 0
+                x, y = neighbour.get_position()
+                if self.is_obstacle(x,y):
+                    obstacles_sum += 1
+                neighbour.num_sensed_block = obstacles_sum
+
+
+
+
+
+
