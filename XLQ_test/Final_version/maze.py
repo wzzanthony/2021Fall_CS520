@@ -144,7 +144,7 @@ class Maze:
         sensed_neighbours_list = []
         i, j = cell.get_position()
         for di, dj in dij:
-            ni, nj = i + di, j + dj:
+            ni, nj = i + di, j + dj
             if self.position_is_valid(ni, nj):
                 each_sensed_neighbour = Cell(position=(ni, nj), father_node=cell)
                 sensed_neighbours_list.append(each_sensed_neighbour)
