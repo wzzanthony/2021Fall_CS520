@@ -13,14 +13,44 @@ class Cell:
         self.hn = None
         self.fn = None
         # Spacial sensing
-        self.is_way=False
-        self.is_block=False
-        self.is_visited=False
-        self.num_sensed_neighbours = None
-        self.num_sensed_block = None
-        self.num_confirm_block = None
-        self.num_confirm_empty = None
-        self.num_unconfirmed_neighbours = None
+        self.empty=False
+        self.obstacle=False
+        self.visited=False
+        self.num_sensed_neighbours = 0
+        self.num_sensed_block = 0
+        self.num_confirm_block = 0
+        self.num_confirm_empty = 0
+        self.num_unconfirmed_neighbours = 0
+
+    def set_confirm_block(self, num):
+        self.num_confirm_block=num
+
+    def set_confirm_empty(self, num):
+        self.num_confirm_empty=num
+
+    def change_unconfirmed_neighbours(self,num):
+        self.num_unconfirmed_neighbours-=num
+
+    def set_block(self):
+        self.obstacle=True
+
+    def set_empty(self):
+        self.empty=True
+
+    def set_visit(self):
+        self.visited=True
+
+    def is_visited(self):
+        return self.visited
+
+    def is_block(self):
+        return self.obstacle
+
+    def is_empty(self):
+        return self.empty
+
+    def have_been_visited(self):
+        return self.visited
 
     def get_position(self):
         return self.position
@@ -75,7 +105,7 @@ class Maze:
         self.width = width
         self.height = height
         self.data = [[0 for i in range(width)] for j in range(height)]
-        self.maze= [[Cell(position=(i,j)) for i in range(width)] for j in range(height)]
+        self.maze= [[Cell(position=(j,i)) for i in range(width)] for j in range(height)]
 
     def initialize_maze(self, probability: float, random_seed=None):
         '''
@@ -117,16 +147,21 @@ class Maze:
         Set obstacles with '#'
         '''
         self.data[i][j] = "#"
+        self.maze[i][j].set_block()
 
     def set_empty(self,i,j):
 
         self.data[i][j]="1"
+        self.maze[i][j].set_empty()
 
     def is_obstacle(self, i, j):
         '''
         Check if the position (i, j) is an obstacle
         '''
         return self.data[i][j] == '#'
+
+    def is_empty(self,i,j):
+        return self.data[i][j]=="1"
 
 
     def generate_children(self, cell: Cell):
@@ -145,6 +180,21 @@ class Maze:
                 children_list.append(child)
         return children_list
 
+    def sense_arround(self, cell:Cell):
+        # first is block, second is empty
+        arround_cell=[0,0]
+        dij = [(1, 1), (1, -1), (1, 0), (0, 1), (0, -1), (-1, 1), (-1, -1), (-1, 0)]
+        i,j=cell.get_position()
+        for di,dj in dij:
+            ni,nj=i+di,j+dj
+            if self.position_is_valid(ni, nj):
+                if self.is_empty(ni,nj):
+                    arround_cell[1]+=1
+                elif self.is_obstacle(ni,nj):
+                    arround_cell[0]+=1
+        return arround_cell
+
+
     def generate_spacial_sensed_neighbours(self, cell:Cell):
         '''
         Generate neighbour cells that can be sensed by spacial sensing
@@ -155,8 +205,9 @@ class Maze:
         for di, dj in dij:
             ni, nj = i + di, j + dj
             if self.position_is_valid(ni, nj):
-                each_sensed_neighbour = Cell(position=(ni, nj), father_node=cell)
-                sensed_neighbours_list.append(each_sensed_neighbour)
+                # each_sensed_neighbour = Cell(position=(ni, nj), father_node=cell)
+                # sensed_neighbours_list.append(each_sensed_neighbour)
+                sensed_neighbours_list.append([ni,nj])
         return sensed_neighbours_list
 
     def get_spacial_info(self, path_list:list):
