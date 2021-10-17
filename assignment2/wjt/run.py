@@ -2,6 +2,7 @@ import math
 from tqdm import tqdm
 import time
 import os
+import json
 import matplotlib.pyplot as plt
 
 from algorithm import SensingRepeatedForwardAStar, AStar
@@ -19,12 +20,18 @@ def test(dim: int, num_experiment=NUM_EXPERIMENT):
     data_time_know4 = [0.0] * len(PS)
     data_time_bumpin = [0.0] * len(PS)
     data_time_infer = [0.0] * len(PS)
+
     data_path_know4 = [0.0] * len(PS)
     data_path_bumpin = [0.0] * len(PS)
     data_path_infer = [0.0] * len(PS)
+
     final_path_know4 = [0.0] * len(PS)
     final_path_bumpin = [0.0] * len(PS)
     final_path_infer = [0.0] * len(PS)
+
+    replan_time_know4=[0] * len(PS)
+    replan_time_bumpin = [0] * len(PS)
+    replan_time_infer = [0] * len(PS)
     for index_p, p in enumerate(PS):
         count = 0
         for random_seed in tqdm(range(num_experiment)):
@@ -46,6 +53,7 @@ def test(dim: int, num_experiment=NUM_EXPERIMENT):
             AStar_search = AStar(sensing.discovered_maze, euclidean_heuristic)
             AStar_search_path = AStar_search.search(start_cell, goal_cell)
             final_path_know4[index_p] += len(AStar_search_path)
+            replan_time_know4[index_p]+=sensing.replan_time
 
             sensing.initialize_discovered_maze()
             st = time.time()
@@ -56,6 +64,7 @@ def test(dim: int, num_experiment=NUM_EXPERIMENT):
             AStar_search = AStar(sensing.discovered_maze, euclidean_heuristic)
             AStar_search_path = AStar_search.search(start_cell, goal_cell)
             final_path_bumpin[index_p] += len(AStar_search_path)
+            replan_time_bumpin[index_p]+=sensing.replan_time
 
             sensing.initialize_discovered_maze()
             st = time.time()
@@ -66,6 +75,7 @@ def test(dim: int, num_experiment=NUM_EXPERIMENT):
             AStar_search = AStar(sensing.discovered_maze, euclidean_heuristic)
             AStar_search_path = AStar_search.search(start_cell, goal_cell)
             final_path_infer[index_p] += len(AStar_search_path)
+            replan_time_infer[index_p]+=sensing.replan_time
 
         if count != 0:
             data_time_know4[index_p] = data_time_know4[index_p] / count
@@ -80,9 +90,14 @@ def test(dim: int, num_experiment=NUM_EXPERIMENT):
             final_path_bumpin[index_p] = final_path_bumpin[index_p] / count
             final_path_infer[index_p] = final_path_infer[index_p] / count
 
+            replan_time_know4[index_p] = replan_time_know4[index_p] / count
+            replan_time_bumpin[index_p] = replan_time_bumpin[index_p] / count
+            replan_time_infer[index_p] = replan_time_infer[index_p] / count
+
     return data_time_know4, data_path_know4, final_path_know4, \
            data_time_bumpin, data_path_bumpin, final_path_bumpin,\
-           data_time_infer,data_path_infer,final_path_infer
+           data_time_infer,data_path_infer,final_path_infer,\
+           replan_time_know4,replan_time_bumpin,replan_time_infer
 
 
 if __name__ == '__main__':
@@ -93,7 +108,9 @@ if __name__ == '__main__':
 
     dim=101
 
-    data_time_know4, data_path_know4, final_path_know4, data_time_bumpin, data_path_bumpin, final_path_bumpin, data_time_infer, data_path_infer, final_path_infer=test(dim, NUM_EXPERIMENT)
+    data_time_know4, data_path_know4, final_path_know4, data_time_bumpin, data_path_bumpin, final_path_bumpin, data_time_infer, data_path_infer, final_path_infer, replan_time_know4, replan_time_bumpin, replan_time_infer=test(dim, NUM_EXPERIMENT)
+
+    # data_time_know4, data_path_know4, final_path_know4, data_time_bumpin, data_path_bumpin, final_path_bumpin, data_time_infer, data_path_infer, final_path_infer=test(dim, NUM_EXPERIMENT)
 
     plt.figure(figsize=(8, 5))
     line1, = plt.plot(PS, data_time_know4, color='red')
@@ -160,3 +177,39 @@ if __name__ == '__main__':
                labels=['agent2', 'agent3'],
                loc='best')
     plt.savefig(os.path.join(new_dir, "6.png"))
+
+    plt.figure(figsize=(8, 5))
+    line1, = plt.plot(PS, replan_time_know4, color='red')
+    line2, = plt.plot(PS, replan_time_infer, color='blue')
+    plt.xlabel('Density')
+    plt.ylabel('Average time')
+    plt.title('Density VS. re-plan time')
+    plt.legend(handles=[line1, line2],
+               labels=['agent1', 'agent3'],
+               loc='best')
+    plt.savefig(os.path.join(new_dir, "7.png"))
+
+    plt.figure(figsize=(8, 5))
+    line1, = plt.plot(PS, replan_time_bumpin, color='red')
+    line2, = plt.plot(PS, replan_time_infer, color='blue')
+    plt.xlabel('Density')
+    plt.ylabel('Average time')
+    plt.title('Density VS. re-plan time')
+    plt.legend(handles=[line1, line2],
+               labels=['agent2', 'agent3'],
+               loc='best')
+    plt.savefig(os.path.join(new_dir, "8.png"))
+
+    
+
+    
+
+    save={"data_path_know4":data_path_know4,"data_path_infer":data_path_infer,"data_path_bumpin":data_path_bumpin,
+          "data_time_know4":data_time_know4,"data_time_bumpin":data_time_bumpin,"data_time_infer":data_time_infer,
+          "final_path_know4":final_path_know4,"final_path_bumpin":final_path_bumpin,"final_path_infer":final_path_infer,
+          "replan_time_know4":replan_time_know4,"replan_time_bumpin":replan_time_bumpin,"replan_time_infer":replan_time_infer}
+    
+    save_json=json.dumps(save)
+    
+    with open(os.path.join(new_dir, "save.json"),"w") as writer:
+        writer.write(save_json)

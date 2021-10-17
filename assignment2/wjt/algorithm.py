@@ -205,6 +205,7 @@ class SensingRepeatedForwardAStar:
         self.discovered_maze = initialize_empty_maze(self.maze)
         # the Discovered cells
         self.cell_processed = set()
+        self.replan_time=0
 
     # For question 8, find a better re-start cell
     def smart_find_restart_cell(self, moved_path: list) -> Cell:
@@ -291,6 +292,7 @@ class SensingRepeatedForwardAStar:
 
     def initialize_discovered_maze(self):
         self.discovered_maze = initialize_empty_maze(self.maze)
+        self.replan_time=0
 
     def search(self, start_cell: Cell, goal_cell: Cell, know_four_neighbours=False, use_infer_method=False, smart_restart=False):
         '''
@@ -311,6 +313,7 @@ class SensingRepeatedForwardAStar:
         # repeat until reach the goal
         while current_cell != goal_cell:
             # search the path in the current percepted maze
+            self.replan_time+=1
             astar = AStar(self.discovered_maze, self.heuristic)
             path = astar.search(current_cell, goal_cell)
             # print('Current at {}, path: {}'.format(current_cell, path))
