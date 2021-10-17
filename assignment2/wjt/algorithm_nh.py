@@ -1,6 +1,6 @@
 import queue
 
-from maze import Maze, Cell
+from maze_nh import Maze, Cell
 
 
 def updateMaze(maze, position, status):
@@ -114,19 +114,20 @@ def updateMaze(maze, position, status):
 
 
 class AStar:
-    def __init__(self, maze: Maze, heuristic):
+    def __init__(self, maze: Maze, heuristic,p):
         '''
         maze: from maze.py
         '''
         self.maze = maze
         self.heuristic = heuristic
+        self.p=p
 
     def search(self, start_cell: Cell, goal_cell: Cell):
         # user a priority queue, always select the cell with smallest fn to explore
         open_list = queue.PriorityQueue()
         start_cell.set_father_node(None)
         # calculate fn and hn
-        start_cell.update_fn(self.heuristic, goal_cell)
+        start_cell.update_fn(self.heuristic, goal_cell, self.p)
 
         open_list.put((start_cell.fn, start_cell))  # (fn, Cell)
         closed_dict = dict()  # cells already visited, {Cell : gn}
@@ -142,7 +143,7 @@ class AStar:
             # Generate the children of n (neighbors believed or known to be unoccupied)
             for child_cell in self.maze.generate_children(current_cell):
                 # update hn and fn of child cell
-                child_cell.update_fn(self.heuristic, goal_cell)
+                child_cell.update_fn(self.heuristic, goal_cell,self.p)
                 '''
                 The successors of n are the children n0 that are newly discovered, or g(n0) > g(n) + 1.
                 For each successor n0, re-set g(n0) = g(n) + 1, representing the newly discovered shortest path from the start node to n0 newly discovered, insert n0 into the fringe at priority f(n0) = g(n0) + h(n0)
@@ -206,6 +207,7 @@ class SensingRepeatedForwardAStar:
         # the Discovered cells
         self.cell_processed = set()
         self.replan_time=0
+        self.p=0
 
     # For question 8, find a better re-start cell
     def smart_find_restart_cell(self, moved_path: list) -> Cell:
@@ -232,41 +234,6 @@ class SensingRepeatedForwardAStar:
                 return cell
         # no such cell found, return the last cell
         return moved_path[-1]
-
-    def check_hallway(self,valid_path):
-        add_cells=[]
-        new_valid_path=valid_path.copy()
-        if len(valid_path)<2:
-            return add_cells
-        while True:
-            current_cell=new_valid_path[-1]
-            current_x, current_y=current_cell.get_position()
-            father_cell=new_valid_path[-2]
-            # if self.discovered_maze.maze[current_x][current_y].num_unconfirmed_neighbours==0:
-            children_list=self.discovered_maze.generate_children(current_cell)
-            if len(children_list)==2:
-                children_list.remove(father_cell)
-                new_child=children_list[0]
-                nc_x, nc_y=new_child.get_position()
-                if self.maze.is_obstacle(nc_x,nc_y):
-                    self.initialize_visit_cell([nc_x,nc_y], "block")
-                else:
-                    self.initialize_visit_cell([nc_x,nc_y], "empty")
-                    new_valid_path.append(new_child)
-                    add_cells.append(new_child)
-                    self.cell_processed.add((nc_x,nc_y))
-            else:
-                break
-            # else:
-            #     break
-        for cell in add_cells:
-            cx,cy=cell.get_position()
-            self.discovered_maze.maze[cx][cy].visited=False
-        return add_cells
-                
-                
-
-
 
     def initialize_visit_cell(self, position, status="empty"):
         current_cell = self.discovered_maze.maze[position[0]][position[1]]
@@ -324,65 +291,12 @@ class SensingRepeatedForwardAStar:
                     if info == 0 or info == "G":
                         self.discovered_maze.set_obstacle(i, j)
                         self.discovered_maze = updateMaze(self.discovered_maze, [i, j], 1)
-        else:
-            if self.discovered_maze.data[position[0]][position[1]] == "#":
-                current_cell.set_block()
-                self.discovered_maze.maze[position[0]][position[1]] = current_cell
-
-    def initialize_not_visit_cell(self, position, status="empty"):
-        current_cell = self.discovered_maze.maze[position[0]][position[1]]
-        if status == "empty":
-            if not current_cell.is_visited():
-                if self.discovered_maze.data[position[0]][position[1]] == "1":
-                    # current_cell.set_visit()
-                    current_cell.set_empty()
-                    surround_cells_info = self.discovered_maze.sense_arround(current_cell)
-                    current_cell.set_confirm_block(surround_cells_info[0])
-                    current_cell.set_confirm_empty(surround_cells_info[1])
-                    current_cell.change_unconfirmed_neighbours(sum(surround_cells_info))
-                    self.discovered_maze.maze[position[0]][position[1]] = current_cell
-                    # self.discovered_maze=updateMaze(self.discovered_maze, position, 2)
-                else:
-                    # current_cell.set_visit()
-                    current_cell.set_empty()
-                    surround_cells_info = self.discovered_maze.sense_arround(current_cell)
-                    current_cell.set_confirm_block(surround_cells_info[0])
-                    current_cell.set_confirm_empty(surround_cells_info[1])
-                    current_cell.change_unconfirmed_neighbours(sum(surround_cells_info))
-                    self.discovered_maze.maze[position[0]][position[1]] = current_cell
-                    self.discovered_maze = updateMaze(self.discovered_maze, position, 2)
-
-        if status == "empty":
-            if current_cell.num_sensed_block == current_cell.num_confirm_block:
-                # others are empty
-                current_cell.num_confirm_empty += current_cell.num_unconfirmed_neighbours
-                current_cell.num_unconfirmed_neighbours = 0
-                self.discovered_maze.maze[position[0]][position[1]] = current_cell
-                surround_cells_info = self.discovered_maze.generate_spacial_sensed_neighbours(current_cell)
-                for i, j in surround_cells_info:
-                    info = self.discovered_maze.data[i][j]
-                    if info == 0 or info == "G":
-                        self.discovered_maze.set_empty(i, j)
-                        self.discovered_maze = updateMaze(self.discovered_maze, [i, j], 2)
-
-            elif (current_cell.num_unconfirmed_neighbours ==
-                  (current_cell.num_sensed_block - current_cell.num_confirm_block)):
-                # others are blocks
-                current_cell.num_confirm_block += current_cell.num_unconfirmed_neighbours
-                current_cell.num_unconfirmed_neighbours = 0
-                self.discovered_maze.maze[position[0]][position[1]] = current_cell
-                surround_cells_info = self.discovered_maze.generate_spacial_sensed_neighbours(current_cell)
-                for i, j in surround_cells_info:
-                    info = self.discovered_maze.data[i][j]
-                    if info == 0 or info == "G":
-                        self.discovered_maze.set_obstacle(i, j)
-                        self.discovered_maze = updateMaze(self.discovered_maze, [i, j], 1)
 
     def initialize_discovered_maze(self):
         self.discovered_maze = initialize_empty_maze(self.maze)
         self.replan_time=0
 
-    def search(self, start_cell: Cell, goal_cell: Cell, know_four_neighbours=False, use_infer_method=False, smart_restart=False, infer_more=False, refer_hallway=False):
+    def search(self, start_cell: Cell, goal_cell: Cell, know_four_neighbours=False, use_infer_method=False, smart_restart=False, infer_more=False):
         '''
         Search the path from start cell to goal cell
         :param start_cell:
@@ -402,7 +316,7 @@ class SensingRepeatedForwardAStar:
         while current_cell != goal_cell:
             # search the path in the current percepted maze
             self.replan_time+=1
-            astar = AStar(self.discovered_maze, self.heuristic)
+            astar = AStar(self.discovered_maze, self.heuristic, self.p)
             path = astar.search(current_cell, goal_cell)
             # print('Current at {}, path: {}'.format(current_cell, path))
             # could not find a path
@@ -428,16 +342,10 @@ class SensingRepeatedForwardAStar:
                 # for each_cell in valid_path:
                 #     x, y = each_cell.get_position()
                 #     self.cell_processed.add((x, y))
-
             # agent moves in the valid path
-            # if len(moved_path) != 0:
-            #     if moved_path[-1] == valid_path[0]:
-            #         moved_path.pop()
-
             if len(moved_path) != 0:
                 if moved_path[-1] == valid_path[0]:
                     moved_path.pop()
-
             if len(moved_path)!=0:
                 last_cell=moved_path[-1]
             else:
@@ -450,34 +358,27 @@ class SensingRepeatedForwardAStar:
                 return moved_path
 
             if not know_four_neighbours:
+                sum_p=0
                 for each_cell in valid_path:
                     x, y = each_cell.get_position()
-                    # self.discovered_maze.set_empty(x, y)
+                    self.discovered_maze.set_empty(x, y)
                     if use_infer_method:
                         self.initialize_visit_cell([x, y], "empty")
+                        sum_p+=self.discovered_maze.maze[x][y].num_sensed_block/self.discovered_maze.maze[x][y].num_sensed_neighbours
                     self.cell_processed.add((x, y))
-
+                if len(valid_path)!=0:
+                    self.p=(sum_p/len(valid_path))*0.33
                 if index_of_first_obstacle is not None:
                     cell = path[index_of_first_obstacle]
                     x, y = cell.get_position()
-                    # self.discovered_maze.set_obstacle(x, y)
+                    self.discovered_maze.set_obstacle(x, y)
                     if use_infer_method:
                         self.initialize_visit_cell([x, y], "block")
                 if infer_more:
 
-                    infer_valid_path = valid_path.copy()
-                    # if isinstance(last_cell, Cell):
-                    #     infer_valid_path.insert(0,last_cell)
-                    #
-
-                    if refer_hallway:
-                        add_path=self.check_hallway(valid_path)
-
-
-
-
-                        # infer_valid_path=valid_path.copy()
-                        infer_valid_path.extend(add_path)
+                    infer_valid_path=valid_path.copy()
+                    if isinstance(last_cell, Cell):
+                        infer_valid_path.insert(0,last_cell)
 
                     if len(infer_valid_path)>1:
                         for index_cell_in_vaild_path in range(len(infer_valid_path)-1):

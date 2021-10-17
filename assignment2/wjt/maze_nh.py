@@ -62,9 +62,9 @@ class Cell:
         # change current node to father node
         return self.father_node
 
-    def update_fn(self, heuristic, goal_cell: 'Cell'):
+    def update_fn(self, heuristic, goal_cell: 'Cell',p=0):
         self.hn = heuristic(self, goal_cell)
-        self.fn = self.gn + self.hn
+        self.fn = (1-p)*self.gn + (1+p)*self.hn
 
     def get_hn(self):
         '''
@@ -227,7 +227,7 @@ class Maze:
         for di, dj in dij:
             ni = x + di
             nj = y + dj
-            if self.position_is_valid(ni, nj) and (self.data[ni][nj]==0 or self.data[ni][nj]=="G" or self.data[ni][nj]=="S"):
+            if self.position_is_valid(ni, nj) and self.is_obstacle(ni,nj) and self.is_empty(ni,nj):
                 positions.append((ni, nj))
         return positions
 
@@ -237,12 +237,8 @@ class Maze:
         return list(ret)
 
     def inferMoreEmpty(self, cell1: Cell, cell2: Cell):
-        c1_x,c1_y=cell1.get_position()
-        c2_x,c2_y=cell2.get_position()
-        block_num1=self.maze[c1_x][c1_y].num_sensed_block-self.maze[c1_x][c1_y].num_confirm_block
-        block_num2=self.maze[c2_x][c2_y].num_sensed_block-self.maze[c2_x][c2_y].num_confirm_block
-        # block_num1 = cell1.num_sensed_block - cell1.num_confirm_block
-        # block_num2 = cell2.num_sensed_block - cell2.num_confirm_block
+        block_num1 = cell1.num_sensed_block - cell1.num_confirm_block
+        block_num2 = cell2.num_sensed_block - cell2.num_confirm_block
         list1 = self.get_unconfirmed_list(cell1)
         list2 = self.get_unconfirmed_list(cell2)
         # if block_num1 == block_num2 and self.is_subset(list1, list2):
