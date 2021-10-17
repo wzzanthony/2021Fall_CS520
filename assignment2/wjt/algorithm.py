@@ -262,6 +262,7 @@ class SensingRepeatedForwardAStar:
         for cell in add_cells:
             cx,cy=cell.get_position()
             self.discovered_maze.maze[cx][cy].visited=False
+            self.discovered_maze.maze[cx][cy].num_unconfirmed_neighbours=self.maze.maze[cx][cy].num_unconfirmed_neighbours
         return add_cells
                 
                 
