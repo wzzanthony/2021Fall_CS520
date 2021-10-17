@@ -220,6 +220,32 @@ class Maze:
                     obstacles_sum += 1
                 neighbour.num_sensed_block = obstacles_sum
 
+    def get_unconfirmed_list(self, cell: Cell):
+        dij = [(1, 1), (1, -1), (1, 0), (0, 1), (0, -1), (-1, 1), (-1, -1), (-1, 0)]
+        positions = []
+        x, y = cell.get_position()
+        for di, dj in dij:
+            ni = x + di
+            nj = y + dj
+            if self.position_is_valid(ni, nj) and self.is_obstacle(ni,nj) and self.is_empty(ni,nj):
+                positions.append((ni, nj))
+        return positions
+
+    @staticmethod
+    def get_distinct(list1, list2):
+        ret=set(list1)^set(list2)
+        return list(ret)
+
+    def inferMoreEmpty(self, cell1: Cell, cell2: Cell):
+        block_num1 = cell1.num_sensed_block - cell1.num_confirm_block
+        block_num2 = cell2.num_sensed_block - cell2.num_confirm_block
+        list1 = self.get_unconfirmed_list(cell1)
+        list2 = self.get_unconfirmed_list(cell2)
+        # if block_num1 == block_num2 and self.is_subset(list1, list2):
+        if block_num1 == block_num2 and set(list1).issubset(list2):
+            return self.get_distinct(list1, list2)
+        else:
+            return []
 
 
 

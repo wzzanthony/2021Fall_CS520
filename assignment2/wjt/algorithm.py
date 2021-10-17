@@ -294,7 +294,7 @@ class SensingRepeatedForwardAStar:
         self.discovered_maze = initialize_empty_maze(self.maze)
         self.replan_time=0
 
-    def search(self, start_cell: Cell, goal_cell: Cell, know_four_neighbours=False, use_infer_method=False, smart_restart=False):
+    def search(self, start_cell: Cell, goal_cell: Cell, know_four_neighbours=False, use_infer_method=False, smart_restart=False, infer_more=False):
         '''
         Search the path from start cell to goal cell
         :param start_cell:
@@ -344,6 +344,10 @@ class SensingRepeatedForwardAStar:
             if len(moved_path) != 0:
                 if moved_path[-1] == valid_path[0]:
                     moved_path.pop()
+            if len(moved_path)!=0:
+                last_cell=moved_path[-1]
+            else:
+                last_cell=None
             moved_path.extend(valid_path)
             if valid_path[-1] == goal_cell:
                 for each_cell in valid_path:
@@ -365,6 +369,20 @@ class SensingRepeatedForwardAStar:
                     self.discovered_maze.set_obstacle(x, y)
                     if use_infer_method:
                         self.initialize_visit_cell([x, y], "block")
+                if infer_more:
+
+                    infer_valid_path=valid_path.copy()
+                    if isinstance(last_cell, Cell):
+                        infer_valid_path.insert(0,last_cell)
+
+                    if len(infer_valid_path)>1:
+                        for index_cell_in_vaild_path in range(len(infer_valid_path)-1):
+                            position_list=self.discovered_maze.inferMoreEmpty(infer_valid_path[index_cell_in_vaild_path],
+                                                                              infer_valid_path[index_cell_in_vaild_path+1])
+                            if len(position_list)!=0:
+                                for i,j in position_list:
+                                    if self.discovered_maze.data[i][j] == 0 or self.discovered_maze.data[i][j] == "G":
+                                        self.discovered_maze = updateMaze(self.discovered_maze, [i, j], 2)
 
             # agent moves in the valid path
             # if len(moved_path)!=0:
