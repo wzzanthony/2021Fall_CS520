@@ -83,6 +83,7 @@ class Maze:
         self.data = [[0 for i in range(width)] for j in range(height)]
         self.maze_terrain = [[None for i in range(width)] for j in range(height)]
         self.possibility = None
+        self.target_position=None
 
     def initialize_maze(self, random_seed=None):
         '''
@@ -120,6 +121,20 @@ class Maze:
                 continue
             break
         self.data[x][y] = target
+        self.target_position=(x,y)
+
+
+    def update_target_position(self):
+        x, y=self.target_position
+        self.data[x][y]=0
+        while True:
+            x = random.randint(0, self.height-1)
+            y = random.randint(0, self.width-1)
+            if self.data[x][y] == "#":
+                continue
+            break
+        self.data[x][y] = target
+        self.target_position = (x, y)
 
     def update_poss(self, position: tuple, is_unreachable=False):
         x,y = position
@@ -154,7 +169,7 @@ class Maze:
 
     def get_target(self, position:tuple):
         x,y=position
-        if self.position_have_target(y, x):
+        if self.position_have_target(x, y):
             poss_get_target = random.random()
             if self.maze_terrain[x][y]=="flat":
                 if poss_get_target>0.2:

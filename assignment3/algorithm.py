@@ -127,10 +127,11 @@ class RepeatedForwardAStar:
         moved_path = []
         # repeat until reach the goal
         find_target=False
-
+        count=0
         # while current_cell != goal_cell:
         while not find_target:
             goal_cell_position=self.discovered_maze.find_next_goal(current_cell.get_position())
+            count+=1
             goal_cell=Cell(goal_cell_position)
             # search the path in the current percepted maze
             astar = AStar(self.discovered_maze, self.heuristic)
@@ -183,6 +184,11 @@ class RepeatedForwardAStar:
             else:
                 # just re-start from the last valid cell
                 current_cell = valid_path[-1]
+                if current_cell.get_position()==self.maze.target_position:
+                    print("*****************************************")
+                    print(self.maze.maze_terrain[self.maze.target_position[0]][self.maze.target_position[1]])
+                else:
+                    print(current_cell)
 
             # if not only_bump:
             #     # now the agent knows the status of the cells around the path, update the self.discovered_maze
