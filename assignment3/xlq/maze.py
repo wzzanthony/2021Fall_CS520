@@ -121,17 +121,17 @@ class Maze:
                     elif 2/3 < random_num <= 1:
                         self.terrain_maze[i][j]='forest'
                 # generate obstacle
-                elif random.random() <= probability:
+                elif random_num <= probability:
                     self.data[i][j] = OBSTACLE
                     self.terrain_maze[i][j]='block'
 
-                elif probability < random.random() <= (0.3+0.7/3):
+                elif probability < random_num <= (0.3+0.7/3):
                     self.terrain_maze[i][j]='flat'
 
-                elif (0.3+0.7/3) <= random.random() <= (0.3+1.4/3):
+                elif (0.3+0.7/3) <= random_num <= (0.3+1.4/3):
                     self.terrain_maze[i][j]='hilly'
 
-                elif (0.3+1.4/3) <= random.random() <= 1:
+                elif (0.3+1.4/3) <= random_num <= 1:
                     self.terrain_maze[i][j]='forest'
         # set target
         while True:
