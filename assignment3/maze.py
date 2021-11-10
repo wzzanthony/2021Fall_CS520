@@ -114,19 +114,9 @@ class Maze:
                     self.maze_terrain[i][j] = "hilly"
                 elif hilly_poss < random_num <= forest_poss:
                     self.maze_terrain[i][j] = "forest"
-        while True:
-            x = random.randint(0, self.height-1)
-            y = random.randint(0, self.width-1)
-            if self.data[x][y] == "#":
-                continue
-            break
-        self.data[x][y] = target
-        self.target_position=(x,y)
 
 
     def update_target_position(self):
-        x, y=self.target_position
-        self.data[x][y]=0
         while True:
             x = random.randint(0, self.height-1)
             y = random.randint(0, self.width-1)

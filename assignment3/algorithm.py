@@ -175,7 +175,8 @@ class RepeatedForwardAStar:
             if index_of_first_obstacle is None:
                 if self.maze.get_target(valid_path[-1].get_position()):
                     find_target=True
-                    return moved_path
+                    print(count)
+                    return count
 
             # Decide the cell to start with
             # smart restart
@@ -184,11 +185,8 @@ class RepeatedForwardAStar:
             else:
                 # just re-start from the last valid cell
                 current_cell = valid_path[-1]
-                if current_cell.get_position()==self.maze.target_position:
-                    print("*****************************************")
-                    print(self.maze.maze_terrain[self.maze.target_position[0]][self.maze.target_position[1]])
-                else:
-                    print(current_cell)
+                if count%5000==0:
+                    print(count)
 
             # if not only_bump:
             #     # now the agent knows the status of the cells around the path, update the self.discovered_maze
