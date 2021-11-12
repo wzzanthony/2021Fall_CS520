@@ -1,2 +1,2 @@
-repeat_creating_maze=100
+repeat_creating_maze=500
 dim_of_maze=101

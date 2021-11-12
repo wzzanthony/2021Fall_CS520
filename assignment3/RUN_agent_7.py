@@ -1,5 +1,5 @@
-from algorithm import RepeatedForwardAStar, AStar
-from maze import Cell, Maze
+from algorithm_agent_7 import RepeatedForwardAStar, AStar
+from maze_agent_7 import Cell, Maze
 from config import repeat_creating_maze, dim_of_maze
 
 import math
@@ -66,12 +66,10 @@ def test(save_path, dim):
         repeat_times, total_path_length, total_exam_times=test.search(start_cell=start_cell)
         et=time.time()-st
         data_dict[str(count)] = {}
-        data_dict[str(count)]["A*_times"]=repeat_times
-        data_dict[str(count)]["time"]=et
-        data_dict[str(count)]["total_path_length"]=total_path_length
+        data_dict[str(count)]["A*_times"] = repeat_times
+        data_dict[str(count)]["time"] = et
+        data_dict[str(count)]["total_path_length"] = total_path_length
         data_dict[str(count)]["total_exam_times"] = total_exam_times
-
-
 
         with open(save_path, "w") as file_writer:
             file_writer.write(json.dumps(data_dict))
@@ -80,8 +78,8 @@ def test(save_path, dim):
 
 if __name__ == '__main__':
     current_path=os.path.dirname(os.path.abspath(__file__))
-    save_file_path=os.path.join(current_path, "agent_6")
+    save_file_path=os.path.join(current_path, "agent_7")
     if not os.path.exists(save_file_path):
         os.mkdir(save_file_path)
-    file_dir=os.path.join(save_file_path, "agent_6.json")
+    file_dir=os.path.join(save_file_path, "agent_7.json")
     test(file_dir, dim=dim_of_maze)

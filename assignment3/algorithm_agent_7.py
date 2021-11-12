@@ -1,6 +1,6 @@
 import math
 import queue
-from maze import Cell, Maze
+from maze_agent_7 import Cell, Maze
 import numpy as np
 
 
@@ -66,6 +66,7 @@ def initialize_empty_maze(maze):
     empty_maze = Maze(maze.width, maze.height)
     empty_maze.possibility=np.ones((maze.width, maze.height))/(maze.height*maze.width)
     empty_maze.maze_terrain=maze.maze_terrain
+    empty_maze.find_target_prob=np.ones((maze.width, maze.height))*0.35
 
     return empty_maze
 
@@ -128,8 +129,8 @@ class RepeatedForwardAStar:
         # repeat until reach the goal
         find_target=False
         count_Astar=0
-        count_path_len=0
-        count_exam=0
+        count_path_len = 0
+        count_exam = 0
         # while current_cell != goal_cell:
         while not find_target:
             goal_cell_position=self.discovered_maze.find_next_goal(current_cell.get_position())
@@ -170,12 +171,21 @@ class RepeatedForwardAStar:
                     for each_cell in valid_path:
                         x, y = each_cell.get_position()
                         self.cell_processed.add((x, y))
+            count_path_len+=len(valid_path)
+            for each_cell in valid_path:
+                x,y=each_cell.get_position()
+                terrain=self.discovered_maze.maze_terrain[x][y]
+                if terrain=="flat":
+                    self.discovered_maze.find_target_prob[x][y]=0.8
+                elif terrain=="hilly":
+                    self.discovered_maze.find_target_prob[x][y] = 0.5
+                elif terrain=="forest":
+                    self.discovered_maze.find_target_prob[x][y] = 0.2
 
             # agent moves in the valid path
             # moved_path.extend(valid_path)
             # if valid_path[-1] == goal_cell:
             #     return moved_path
-            count_path_len+=len(valid_path)
             if index_of_first_obstacle is None:
                 if self.maze.get_target(valid_path[-1].get_position()):
                     find_target=True
