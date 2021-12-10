@@ -129,3 +129,6 @@ class Maze:
                 child = Cell((ni, nj), cell)   # set the father node simultaneously
                 children_list.append(child)
         return children_list
+
+    def get_maze(self):
+        return self.data
