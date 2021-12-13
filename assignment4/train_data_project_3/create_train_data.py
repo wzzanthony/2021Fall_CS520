@@ -3,9 +3,8 @@ import os
 import math
 
 from config import create_data_num, dim
-from maze import Maze, Cell
-from A_star import AStar
-from algorithm import RepeatedForwardAStar
+from maze_agent_7 import Maze, Cell
+from algorithm_agent_7 import AStar, RepeatedForwardAStar
 
 
 
@@ -30,7 +29,7 @@ def main():
     i=0
     while i<=create_data_num:
         maze=Maze(width=dim, height=dim)
-        maze.initialize_maze(0.3, random_seed=random_seed)
+        maze.initialize_maze(random_seed=random_seed)
         goal_cell = Cell((dim - 1, dim - 1))
         start_cell = Cell((0, 0))
         AStar_search = AStar(maze, euclidean_heuristic)
@@ -38,13 +37,21 @@ def main():
         random_seed+=1
         if len(AStar_search_path) == 0:
             continue
+        path=[]
+        while len(path) == 0:
+            maze.update_target_position()
+            astar_search = AStar(maze, euclidean_heuristic)
+            start_cell = Cell((0, 0))
+            goal_cell = Cell(maze.target_position)
+            path = astar_search.search(start_cell=start_cell, goal_cell=goal_cell)
         i+=1
         print("print data line "+str(i))
 
 
-
-        origin_maze=maze.data
-        maze_string=json.dumps(origin_maze)
+        origin_data={}
+        origin_data['maze']=maze.data
+        origin_data['target_position']=maze.target_position
+        maze_string=json.dumps(origin_data)
         origin_maze_file=os.path.join(origin_maze_path,str(i)+'.json')
         with open(origin_maze_file, 'w') as data_writer:
             data_writer.write(maze_string)
