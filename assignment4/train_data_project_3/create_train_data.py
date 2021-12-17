@@ -1,10 +1,11 @@
 import json
 import os
 import math
+import time
 
 from config import create_data_num, dim
 from maze_agent_7 import Maze, Cell
-from algorithm_agent_7 import AStar, RepeatedForwardAStar
+from algorithm_agent_7_for_data import AStar, RepeatedForwardAStar
 
 
 
@@ -27,6 +28,8 @@ def main():
         os.mkdir(train_data_path)
     random_seed=0
     i=0
+    compare_data={}
+    file_path = os.path.join(current_path, 'data.json')
     while i<=create_data_num:
         maze=Maze(width=dim, height=dim)
         maze.initialize_maze(random_seed=random_seed)
@@ -51,20 +54,38 @@ def main():
         origin_data={}
         origin_data['maze']=maze.data
         origin_data['target_position']=maze.target_position
+        origin_data['terrain_maze']=maze.maze_terrain
         maze_string=json.dumps(origin_data)
         origin_maze_file=os.path.join(origin_maze_path,str(i)+'.json')
         with open(origin_maze_file, 'w') as data_writer:
             data_writer.write(maze_string)
 
 
+        # current_path=os.path.dirname(os.path.abspath("__file__"))
+        # file_path=os.path.join(current_path, 'data.json')
+        # repeat_Astar=RepeatedForwardAStar(maze, euclidean_heuristic)
+        # train_data=repeat_Astar.search(start_cell,goal_cell)
+        # train_data_str=json.dumps(train_data)
+        # train_data_file=os.path.join(train_data_path,str(i)+'.json')
+        # with open(train_data_file,'w') as data_writer:
+        #     data_writer.write(train_data_str)
+
+
 
         repeat_Astar=RepeatedForwardAStar(maze, euclidean_heuristic)
-        train_data=repeat_Astar.search(start_cell,goal_cell)
-        train_data_str=json.dumps(train_data)
-        train_data_file=os.path.join(train_data_path,str(i)+'.json')
-        with open(train_data_file,'w') as data_writer:
-            data_writer.write(train_data_str)
+        st=time.time()
+        _, path,_=repeat_Astar.search(start_cell,goal_cell)
+        ed=time.time()-st
+        compare_data[str(i)]={}
+        compare_data[str(i)]['origin']={}
+        compare_data[str(i)]['mimic']={}
+        compare_data[str(i)]['origin']['length']=path
+        compare_data[str(i)]['origin']['time'] = ed
+        compare_data[str(i)]['path']=origin_maze_file
 
+    compare_data_str=json.dumps(compare_data)
+    with open(file_path, 'w') as a:
+        a.write(compare_data_str)
 
 
 
